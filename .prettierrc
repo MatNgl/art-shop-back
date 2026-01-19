@@ -1,5 +1,5 @@
 {
-  "semi": true, # Ajoute un point-virgule à la fin des lignes
+  "semi": true, 
   "singleQuote": true,
   "trailingComma": "all",
   "endOfLine": "auto"
