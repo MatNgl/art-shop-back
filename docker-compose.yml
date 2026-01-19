@@ -20,8 +20,21 @@ services:
       - "8080:8978"                      # Accessible sur localhost:8080
     volumes:
       - cloudbeaver_data:/opt/cloudbeaver/workspace  # Config persistante
+    environment:
+      CB_SERVER_NAME: "ArtShop Database"
+      CB_ADMIN_NAME: adminsql
+      CB_ADMIN_PASSWORD: Admin123
     depends_on:
       - postgres
+
+  dev-hub:
+    image: nginx:alpine
+    container_name: artshop_dev_hub
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./dev-hub:/usr/share/nginx/html:ro  # Contenu statique du hub dev
 
 volumes:
   postgres_data:

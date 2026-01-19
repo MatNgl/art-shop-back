@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Art Shop — Dev Hub</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, #a855f7, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      margin-bottom: 3rem;
+    }
+
+    .links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 200px;
+      text-decoration: none;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .status {
+      margin-top: 3rem;
+      padding: 1rem;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 8px;
+      color: #4ade80;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Art Shop</h1>
+    <p class="subtitle">Dev Hub — Environnement de développement</p>
+
+    <div class="links">
+      <a href="http://localhost:3000/api" target="_blank" class="card">
+        <div class="card-icon">📘</div>
+        <div class="card-title">Swagger</div>
+        <div class="card-desc">Documentation API</div>
+      </a>
+
+      <a href="http://localhost:8080" target="_blank" class="card">
+        <div class="card-icon">🗄️</div>
+        <div class="card-title">CloudBeaver</div>
+        <div class="card-desc">Base de données</div>
+      </a>
+
+      <a href="http://localhost:5173" target="_blank" class="card">
+        <div class="card-icon">⚛️</div>
+        <div class="card-title">Frontend</div>
+        <div class="card-desc">React App</div>
+      </a>
+
+      <a href="http://localhost:3000" target="_blank" class="card">
+        <div class="card-icon">🚀</div>
+        <div class="card-title">Backend</div>
+        <div class="card-desc">NestJS API</div>
+      </a>
+    </div>
+
+    <div class="status">
+      ✓ Environnement Docker actif
+    </div>
+  </div>
+</body>
+</html>
