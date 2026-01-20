@@ -2,83 +2,228 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+  <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+  <a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# 🎨 Art Shop — Backend API
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+> Plateforme de vente en ligne dédiée à un artiste unique, valorisant la dimension artistique des œuvres.
 
-## Project setup
+---
+
+## 📋 Table des matières
+
+- [Stack technique](#-stack-technique)
+- [Prérequis](#-prérequis)
+- [Installation](#-installation)
+- [Docker](#-docker)
+- [Lancement du projet](#-lancement-du-projet)
+- [Migrations TypeORM](#-migrations-typeorm)
+- [Seeds (données initiales)](#-seeds-données-initiales)
+- [Prettier (formatage)](#-prettier-formatage)
+- [ESLint (qualité de code)](#-eslint-qualité-de-code)
+- [Tests](#-tests)
+- [Documentation API](#-documentation-api)
+- [Structure du projet](#-structure-du-projet)
+
+---
+
+## 🛠 Stack technique
+
+| Technologie | Rôle |
+|-------------|------|
+| **NestJS** | Framework backend Node.js |
+| **TypeScript** | Typage strict |
+| **PostgreSQL** | Base de données relationnelle |
+| **TypeORM** | ORM pour la gestion des entités |
+| **Passport + JWT** | Authentification |
+| **Swagger** | Documentation API |
+| **Docker** | Conteneurisation |
+
+---
+
+## 📦 Prérequis
+
+- **Node.js** >= 18.x
+- **npm** >= 9.x
+- **Docker** et **Docker Compose**
+- **Git**
+
+---
+
+## 🚀 Installation
 
 ```bash
-$ npm install
+# Cloner le repository
+git clone <url-du-repo>
+cd art-shop-back
+
+# Installer les dépendances
+npm install
+
+# Copier le fichier d'environnement
+cp .env.example .env
+# Puis éditer .env avec vos valeurs
 ```
 
-## Compile and run the project
+---
+
+## 🐳 Docker
+
+Docker Compose gère PostgreSQL, CloudBeaver (interface BDD) et le Dev Hub.
+
+### Commandes Docker
 
 ```bash
-# development
-$ npm run start
+# Démarrer tous les services (en arrière-plan)
+docker-compose up -d
 
-# watch mode
-$ npm run start:dev
+# Démarrer et voir les logs
+docker-compose up
 
-# production mode
-$ npm run start:prod
+# Arrêter tous les services
+docker-compose down
+
+# Arrêter et supprimer les volumes (reset complet de la BDD)
+docker-compose down -v
+
+# Voir les logs d'un service spécifique
+docker-compose logs postgres
+docker-compose logs cloudbeaver
+
+# Reconstruire les images après modification
+docker-compose up -d --build
+
+# Vérifier l'état des conteneurs
+docker-compose ps
 ```
 
-## Run tests
+### Services disponibles
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **PostgreSQL** | `localhost:5432` | Base de données |
+| **CloudBeaver** | `http://localhost:8080` | Interface web pour la BDD |
+| **Dev Hub** | `http://localhost:8000` | Page d'accueil développeur |
+
+---
+
+## ▶️ Lancement du projet
 
 ```bash
-# unit tests
-$ npm run test
+# Mode développement (avec hot-reload)
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
+# Mode standard
+npm run start
 
-# test coverage
-$ npm run test:cov
+# Mode debug (avec inspection)
+npm run start:debug
+
+# Mode production
+npm run build
+npm run start:prod
 ```
 
+### URLs après lancement
 
-# 🎨 Prettier — Formatage du code
+| Service | URL |
+|---------|-----|
+| **API Backend** | `http://localhost:3000` |
+| **Swagger (Documentation)** | `http://localhost:3000/api` |
+| **Dev Hub** | `http://localhost:8000` |
+| **CloudBeaver** | `http://localhost:8080` |
 
-Prettier est un outil de formatage automatique qui garantit un style de code cohérent dans tout le projet.
+---
+
+## 🗄️ Migrations TypeORM
+
+Les migrations permettent de versionner les modifications de la base de données.
+
+### Principe
+
+```
+Entité TypeScript  →  Migration générée  →  Base de données
+    (User)              (CREATE TABLE)        (table users)
+```
+
+### Commandes
+
+```bash
+# ⚠️ IMPORTANT : Toujours compiler avant les migrations
+npm run build
+
+# Générer une migration après modification d'une entité
+npm run migration:generate src/migrations/NomDeLaMigration
+
+# Exécuter les migrations en attente
+npm run migration:run
+
+# Annuler la dernière migration
+npm run migration:revert
+
+# Voir le statut des migrations (via TypeORM CLI)
+npm run typeorm migration:show
+```
+
+### Workflow typique
+
+```bash
+# 1. Modifier une entité (ex: ajouter un champ dans User)
+# 2. Compiler le projet
+npm run build
+
+# 3. Générer la migration
+npm run migration:generate src/migrations/AddFieldToUser
+
+# 4. Vérifier le fichier généré dans src/migrations/
+# 5. Appliquer la migration
+npm run migration:run
+```
+
+---
+
+## 🌱 Seeds (données initiales)
+
+Les seeds permettent d'insérer des données de base (rôles, admin, etc.).
+
+```bash
+# Exécuter le seed (crée les rôles par défaut)
+npm run seed:run
+```
+
+Rôles créés par défaut :
+- `SUPER_ADMIN` — Super Administrateur
+- `ADMIN` — Administrateur
+- `USER` — Utilisateur
+- `GUEST` — Invité
+
+---
+
+## 🎨 Prettier (formatage)
+
+Prettier garantit un style de code cohérent dans tout le projet.
 
 ### Configuration
 
-Le fichier `.prettierrc` à la racine définit les règles :
+Le fichier `.prettierrc` définit les règles :
 ```json
 {
   "semi": true,
   "singleQuote": true,
   "trailingComma": "all",
-  "printWidth": 100,
-  "tabWidth": 2,
+  "printWidth": 120,
   "endOfLine": "auto"
 }
 ```
 
 ### Commandes
+
 ```bash
-# Vérifier le formatage (sans modifier)
+# Vérifier le formatage (sans modifier les fichiers)
 npx prettier --check "src/**/*.ts"
 
 # Formater tout le code automatiquement
@@ -86,11 +231,16 @@ npx prettier --write "src/**/*.ts"
 
 # Formater un fichier spécifique
 npx prettier --write src/app.module.ts
+
+# Formater tout le projet (src + test)
+npm run format
 ```
 
 ### Intégration VS Code
 
-Installe l'extension **Prettier - Code formatter** et ajoute dans `.vscode/settings.json` :
+1. Installer l'extension **Prettier - Code formatter**
+2. Ajouter dans `.vscode/settings.json` :
+
 ```json
 {
   "editor.formatOnSave": true,
@@ -98,75 +248,152 @@ Installe l'extension **Prettier - Code formatter** et ajoute dans `.vscode/setti
 }
 ```
 
-Le code sera automatiquement formaté à chaque sauvegarde.
+---
+
+## 🔍 ESLint (qualité de code)
+
+ESLint détecte les erreurs et enforce les bonnes pratiques TypeScript.
+
+### Commandes
+
+```bash
+# Vérifier le code et corriger automatiquement
+npm run lint
+
+# Vérifier sans corriger
+npx eslint "src/**/*.ts"
+
+# Vérifier un fichier spécifique
+npx eslint src/app.module.ts
+```
 
 ---
 
-## 🗄️ Migrations TypeORM
-
-Les migrations permettent de versionner les modifications de la base de données, comme Git pour le code.
-
-### Principe
-```
-Entité TypeScript  →  Migration générée  →  Base de données
-    (Role)              (CREATE TABLE)        (table roles)
-```
-
-Chaque migration contient :
-- `up()` : Ce qui se passe quand on **applique** la migration
-- `down()` : Ce qui se passe quand on **annule** la migration (rollback)
-
-### Commandes
-```bash
-# 1. Compiler le projet (obligatoire avant toute migration)
-npm run build
-
-# 2. Générer une migration après modification d'une entité
-npm run migration:generate src/migrations/NomDeLaMigration
-
-# 3. Exécuter les migrations en attente
-npm run migration:run
-
-# 4. Annuler la dernière migration
-npm run migration:revert
-
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 🧪 Tests
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Tests unitaires
+npm run test
+
+# Tests unitaires en mode watch
+npm run test:watch
+
+# Tests end-to-end (e2e)
+npm run test:e2e
+
+# Couverture de code
+npm run test:cov
+
+# Tests en mode debug
+npm run test:debug
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 📘 Documentation API
 
-Check out a few resources that may come in handy when working with NestJS:
+La documentation Swagger est générée automatiquement.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+**URL** : `http://localhost:3000/api`
 
-## Support
+### Endpoints disponibles (Auth)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| `POST` | `/auth/register` | Créer un compte |
+| `POST` | `/auth/login` | Se connecter |
+| `GET` | `/auth/me` | Profil utilisateur (🔒 JWT) |
+| `POST` | `/auth/logout` | Se déconnecter (🔒 JWT) |
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 📁 Structure du projet
 
-## License
+```
+src/
+├── config/                 # Configuration (TypeORM, etc.)
+│   └── typeorm.config.ts
+├── database/               # Seeds et scripts BDD
+│   └── seed.ts
+├── migrations/             # Migrations TypeORM
+│   ├── 1768905046957-CreateRolesTable.ts
+│   └── 1768919532114-CreateUsersTable.ts
+├── modules/                # Modules métier
+│   ├── auth/               # Authentification
+│   │   ├── decorators/     # Décorateurs personnalisés
+│   │   ├── dto/            # Data Transfer Objects
+│   │   ├── guards/         # Guards (JWT, Roles)
+│   │   ├── strategies/     # Stratégies Passport
+│   │   ├── auth.controller.ts
+│   │   ├── auth.module.ts
+│   │   └── auth.service.ts
+│   ├── roles/              # Gestion des rôles
+│   │   └── entities/
+│   │       └── role.entity.ts
+│   └── users/              # Gestion des utilisateurs
+│       └── entities/
+│           └── user.entity.ts
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+└── main.ts                 # Point d'entrée
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 🔐 Variables d'environnement
+
+Créer un fichier `.env` à la racine :
+
+```env
+# Base de données
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_USERNAME=artshop_user
+DB_PASSWORD=artshop_secret_2026
+DB_NAME=artshop_db
+
+# JWT
+JWT_SECRET=votre_secret_super_securise
+JWT_EXPIRES_IN=7d
+
+# Google OAuth (optionnel)
+GOOGLE_CLIENT_ID=votre_client_id
+GOOGLE_CLIENT_SECRET=votre_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+```
+
+---
+
+## 📝 Commandes utiles — Résumé
+
+| Action | Commande |
+|--------|----------|
+| Installer les dépendances | `npm install` |
+| Démarrer Docker | `docker-compose up -d` |
+| Arrêter Docker | `docker-compose down` |
+| Lancer en dev | `npm run start:dev` |
+| Compiler | `npm run build` |
+| Générer migration | `npm run migration:generate src/migrations/Nom` |
+| Exécuter migrations | `npm run migration:run` |
+| Annuler migration | `npm run migration:revert` |
+| Lancer les seeds | `npm run seed:run` |
+| Formater le code | `npm run format` |
+| Linter le code | `npm run lint` |
+| Tests unitaires | `npm run test` |
+| Tests e2e | `npm run test:e2e` |
+
+---
+
+## 📚 Ressources NestJS
+
+- [Documentation NestJS](https://docs.nestjs.com)
+- [Discord NestJS](https://discord.gg/G7Qnnhy)
+- [Cours officiels](https://courses.nestjs.com/)
+- [NestJS Devtools](https://devtools.nestjs.com)
+
+---
+
+## 📄 Licence
+
+Ce projet est sous licence [MIT](LICENSE).

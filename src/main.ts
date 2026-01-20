@@ -36,6 +36,7 @@ async function bootstrap() {
    🚀 Dev Hub      : http://localhost:8000
    📘 Swagger      : http://localhost:${port}/api
    🗄️  CloudBeaver : http://localhost:8080
+      Connexion Google : http://localhost:3000/auth/google
 
 =========================================
 `);

@@ -15,6 +15,11 @@ export enum UserStatus {
   SUSPENDED = 'SUSPENDED',
 }
 
+export enum AuthProvider {
+  LOCAL = 'LOCAL',
+  GOOGLE = 'GOOGLE',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -27,11 +32,11 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   role!: Role;
 
-  @Column({ type: 'varchar', length: 200, unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true })
   email!: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255 })
-  passwordHash!: string;
+  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true })
+  passwordHash?: string; // Nullable car Google n'a pas de mot de passe
 
   @Column({ name: 'first_name', type: 'varchar', length: 100, nullable: true })
   firstName?: string;
@@ -42,11 +47,29 @@ export class User {
   @Column({ name: 'display_name', type: 'varchar', length: 150, nullable: true })
   displayName?: string;
 
-  @Column({ type: 'varchar', length: 15, nullable: true })
+  @Column({ type: 'varchar', length: 30, nullable: true })
   phone?: string;
 
-  @Column({ type: 'varchar', length: 30, default: UserStatus.ACTIVE })
+  @Column({
+    type: 'varchar',
+    length: 30,
+    default: UserStatus.ACTIVE,
+  })
   status!: UserStatus;
+
+  @Column({
+    name: 'auth_provider',
+    type: 'varchar',
+    length: 20,
+    default: AuthProvider.LOCAL,
+  })
+  authProvider!: AuthProvider;
+
+  @Column({ name: 'google_id', type: 'varchar', length: 255, nullable: true, unique: true })
+  googleId?: string;
+
+  @Column({ name: 'avatar_url', type: 'text', nullable: true })
+  avatarUrl?: string;
 
   @Column({ name: 'last_login_at', type: 'timestamp', nullable: true })
   lastLoginAt?: Date;

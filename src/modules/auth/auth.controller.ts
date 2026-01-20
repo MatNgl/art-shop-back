@@ -2,12 +2,24 @@ import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Request }
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto';
-import { JwtAuthGuard } from './guards';
+import { GoogleAuthGuard, JwtAuthGuard } from './guards';
 import { User } from '../users/entities/user.entity';
 
 // Interface pour typer la requête avec l'utilisateur
 interface RequestWithUser extends Request {
   user: User;
+}
+
+interface GoogleUser {
+  googleId: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  avatarUrl?: string;
+}
+
+interface RequestWithGoogleUser extends Request {
+  user: GoogleUser;
 }
 
 @ApiTags('Authentification')
@@ -42,6 +54,33 @@ export class AuthController {
   })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Connexion avec Google' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection vers Google',
+  })
+  googleAuth() {
+    // Le guard redirige automatiquement vers Google
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Callback Google OAuth' })
+  @ApiResponse({
+    status: 200,
+    description: 'Connexion Google réussie',
+  })
+  async googleCallback(
+    @Request()
+    req: {
+      user: { googleId: string; email: string; firstName?: string; lastName?: string; avatarUrl?: string };
+    },
+  ) {
+    return this.authService.googleLogin(req.user);
   }
 
   @Get('me')

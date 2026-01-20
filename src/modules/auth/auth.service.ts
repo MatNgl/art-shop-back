@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User, UserStatus } from '../users/entities/user.entity';
+import { User, UserStatus, AuthProvider } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { RegisterDto, LoginDto } from './dto';
 
@@ -44,6 +44,7 @@ export class AuthService {
       role: userRole,
       roleId: userRole.id,
       status: UserStatus.ACTIVE,
+      authProvider: AuthProvider.LOCAL,
     });
 
     // Enregistre l'utilisateur dans la base de données
@@ -70,6 +71,11 @@ export class AuthService {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
 
+    // Vérifie que l'utilisateur utilise l'auth locale (pas Google)
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Ce compte utilise la connexion Google');
+    }
+
     // Vérifie le mot de passe
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
@@ -86,6 +92,61 @@ export class AuthService {
     await this.userRepository.save(user);
 
     // Génère le token JWT
+    const accessToken = this.generateToken(user);
+
+    return {
+      accessToken,
+      user: this.sanitizeUser(user),
+    };
+  }
+
+  /* Connexion ou inscription via Google */
+  async googleLogin(googleUser: {
+    googleId: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    avatarUrl?: string;
+  }): Promise<{ accessToken: string; user: Partial<User> }> {
+    const { googleId, email, firstName, lastName, avatarUrl } = googleUser;
+
+    // Cherche un utilisateur existant par googleId ou email
+    let user = await this.userRepository.findOne({
+      where: [{ googleId }, { email }],
+      relations: ['role'],
+    });
+
+    if (user) {
+      // Met à jour les infos Google si l'utilisateur existe
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.authProvider = AuthProvider.GOOGLE;
+      }
+      user.avatarUrl = avatarUrl;
+      user.lastLoginAt = new Date();
+      await this.userRepository.save(user);
+    } else {
+      // Crée un nouvel utilisateur
+      const userRole = await this.roleRepository.findOne({ where: { code: 'USER' } });
+      if (!userRole) {
+        throw new Error("Le rôle USER n'existe pas dans la base de données.");
+      }
+
+      user = this.userRepository.create({
+        email,
+        googleId,
+        firstName,
+        lastName,
+        avatarUrl,
+        authProvider: AuthProvider.GOOGLE,
+        role: userRole,
+        roleId: userRole.id,
+        status: UserStatus.ACTIVE,
+      });
+
+      await this.userRepository.save(user);
+    }
+
     const accessToken = this.generateToken(user);
 
     return {
