@@ -4,7 +4,7 @@ services:
     container_name: artshop_db
     restart: unless-stopped # Redémarre auto sauf arrêt manuel
     environment:
-      POSTGRES_USER: ${DB_USER}
+      POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:

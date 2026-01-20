@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
 @Module({
   imports: [
     // Charge les variables d'environnement depuis .env
@@ -19,10 +18,10 @@ import { AppService } from './app.service';
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USER'),
+        username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [], // On ajoutera nos entités ici
+        entities: [__dirname + '/**/*.entity{.ts,.js}'], // Charge toutes les entités automatiquement
         synchronize: false, // JAMAIS true en prod — on utilisera les migrations
         logging: true, // Affiche les requêtes SQL en dev
       }),
