@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     // Charge les variables d'environnement depuis .env
@@ -26,6 +27,7 @@ import { AppService } from './app.service';
         logging: true, // Affiche les requêtes SQL en dev
       }),
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

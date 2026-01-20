@@ -1,10 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Validation automatique des DTOs
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Supprime les propriétés non définies dans le DTO
+      forbidNonWhitelisted: true, // Rejette les requêtes avec des propriétés inconnues
+      transform: true, // Transforme les données en instances de classes
+    }),
+  );
+
+  // Configuration Swagger
   const config = new DocumentBuilder()
     .setTitle('Art Shop API')
     .setDescription('API de la plateforme de vente en ligne pour artiste')
@@ -29,4 +40,5 @@ async function bootstrap() {
 =========================================
 `);
 }
+
 void bootstrap();
