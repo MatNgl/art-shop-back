@@ -18,10 +18,6 @@ interface GoogleUser {
   avatarUrl?: string;
 }
 
-interface RequestWithGoogleUser extends Request {
-  user: GoogleUser;
-}
-
 @ApiTags('Authentification')
 @Controller('auth')
 export class AuthController {
@@ -74,12 +70,7 @@ export class AuthController {
     status: 200,
     description: 'Connexion Google réussie',
   })
-  async googleCallback(
-    @Request()
-    req: {
-      user: { googleId: string; email: string; firstName?: string; lastName?: string; avatarUrl?: string };
-    },
-  ) {
+  async googleCallback(@Request() req: { user: GoogleUser }) {
     return this.authService.googleLogin(req.user);
   }
 

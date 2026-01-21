@@ -339,32 +339,6 @@ src/
 └── main.ts                 # Point d'entrée
 ```
 
----
-
-## 🔐 Variables d'environnement
-
-Créer un fichier `.env` à la racine :
-
-```env
-# Base de données
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_USERNAME=artshop_user
-DB_PASSWORD=artshop_secret_2026
-DB_NAME=artshop_db
-
-# JWT
-JWT_SECRET=votre_secret_super_securise
-JWT_EXPIRES_IN=7d
-
-# Google OAuth (optionnel)
-GOOGLE_CLIENT_ID=votre_client_id
-GOOGLE_CLIENT_SECRET=votre_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
-```
-
----
-
 ## 📝 Commandes utiles — Résumé
 
 | Action | Commande |

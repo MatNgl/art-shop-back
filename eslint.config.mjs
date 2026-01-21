@@ -38,4 +38,15 @@ export default tseslint.config(
       }],
     },
   },
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.e2e-spec.ts'],
+    rules: {
+      // Les mocks Jest ne dépendent pas du contexte 'this',
+      // cette règle génère des faux positifs dans les tests
+      '@typescript-eslint/unbound-method': 'off',
+      // app.getHttpServer() retourne 'any' (signature NestJS)
+      // C'est un comportement attendu dans les tests e2e
+      '@typescript-eslint/no-unsafe-argument': 'off',
+    },
+  },
 );
