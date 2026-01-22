@@ -29,7 +29,7 @@ export class RegisterDto {
     example: 'password123',
   })
   @IsString()
-  @MinLength(8, { message: 'Le mot de passe doit contenir au moins 8 caractères' })
+  @MinLength(6, { message: 'Le mot de passe doit contenir au moins 8 caractères' })
   @MaxLength(50, { message: 'Le mot de passe ne peut pas dépasser 50 caractères' })
   password!: string;
 
