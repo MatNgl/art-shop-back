@@ -72,8 +72,8 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Callback Google OAuth' })
   @ApiResponse({
-    status: 302,
-    description: 'Redirection vers le frontend',
+    status: 200,
+    description: 'Connexion réussie via Google',
   })
   async googleCallback(@Request() req: { user: GoogleUser }, @Res() res: Response) {
     const { accessToken } = await this.authService.googleLogin(req.user);
@@ -109,9 +109,8 @@ export class AuthController {
     status: 200,
     description: 'Déconnexion réussie',
   })
-  logout() {
-    // Avec JWT, le logout se fait côté client (suppression du token)
-    // Ici on retourne juste une confirmation
-    return { message: 'Déconnexion réussie' };
+  logout(@Request() req: RequestWithUser) {
+    // ✅ Passe le userId au service pour logger la déconnexion
+    return this.authService.logout(req.user.id);
   }
 }

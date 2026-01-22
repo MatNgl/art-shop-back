@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { ActivityLogModule } from './modules/activity-logs';
 @Module({
   imports: [
     // Charge les variables d'environnement depuis .env
@@ -28,6 +29,7 @@ import { AuthModule } from './modules/auth/auth.module';
       }),
     }),
     AuthModule,
+    ActivityLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

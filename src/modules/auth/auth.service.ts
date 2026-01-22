@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User, UserStatus, AuthProvider } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { RegisterDto, LoginDto } from './dto';
+import { ActivityLogService, ActorType, ActionType, EntityType, LogSeverity } from '../activity-logs';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
     private jwtService: JwtService,
+    private activityLogService: ActivityLogService,
   ) {}
 
   // Inscription d'un nouvel utilisateur
@@ -50,6 +52,21 @@ export class AuthService {
     // Enregistre l'utilisateur dans la base de données
     await this.userRepository.save(user);
 
+    // Log l'action d'inscription
+    await this.activityLogService.log({
+      actorType: ActorType.USER,
+      actorUserId: user.id,
+      actionType: ActionType.USER_REGISTERED,
+      entityType: EntityType.USER,
+      entityId: user.id,
+      severity: LogSeverity.INFO,
+      metadata: {
+        email: user.email,
+        authProvider: user.authProvider,
+        roleCode: userRole.code,
+      },
+    });
+
     // Génère un token JWT pour l'utilisateur
     const accessToken = this.generateToken(user);
 
@@ -68,28 +85,92 @@ export class AuthService {
     });
 
     if (!user) {
+      // ✅ LOG : Échec - utilisateur non trouvé
+      await this.activityLogService.log({
+        actorType: ActorType.GUEST,
+        actionType: ActionType.USER_LOGIN_FAILED,
+        entityType: EntityType.USER,
+        severity: LogSeverity.WARNING,
+        metadata: {
+          email,
+          reason: 'USER_NOT_FOUND',
+        },
+      });
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
 
     // Vérifie que l'utilisateur utilise l'auth locale (pas Google)
     if (!user.passwordHash) {
+      // ✅ LOG : Échec - compte Google
+      await this.activityLogService.log({
+        actorType: ActorType.USER,
+        actorUserId: user.id,
+        actionType: ActionType.USER_LOGIN_FAILED,
+        entityType: EntityType.USER,
+        entityId: user.id,
+        severity: LogSeverity.WARNING,
+        metadata: {
+          email,
+          reason: 'GOOGLE_ACCOUNT_NO_PASSWORD',
+        },
+      });
       throw new UnauthorizedException('Ce compte utilise la connexion Google');
     }
 
     // Vérifie le mot de passe
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
+      //LOG : Échec - mot de passe incorrect
+      await this.activityLogService.log({
+        actorType: ActorType.USER,
+        actorUserId: user.id,
+        actionType: ActionType.USER_LOGIN_FAILED,
+        entityType: EntityType.USER,
+        entityId: user.id,
+        severity: LogSeverity.WARNING,
+        metadata: {
+          email,
+          reason: 'INVALID_PASSWORD',
+        },
+      });
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
 
     // Vérifie que l'utilisateur est actif
     if (user.status !== UserStatus.ACTIVE) {
+      // ✅ LOG : Échec - compte inactif
+      await this.activityLogService.log({
+        actorType: ActorType.USER,
+        actorUserId: user.id,
+        actionType: ActionType.USER_LOGIN_FAILED,
+        entityType: EntityType.USER,
+        entityId: user.id,
+        severity: LogSeverity.WARNING,
+        metadata: {
+          email,
+          reason: 'ACCOUNT_INACTIVE',
+          status: user.status,
+        },
+      });
       throw new UnauthorizedException('Ce compte est désactivé');
     }
 
     // Met à jour la date de dernière connexion
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);
+
+    // ✅ LOG : Connexion réussie
+    await this.activityLogService.log({
+      actorType: ActorType.USER,
+      actorUserId: user.id,
+      actionType: ActionType.USER_LOGIN,
+      entityType: EntityType.USER,
+      entityId: user.id,
+      metadata: {
+        email: user.email,
+        authProvider: user.authProvider,
+      },
+    });
 
     // Génère le token JWT
     const accessToken = this.generateToken(user);
@@ -146,7 +227,18 @@ export class AuthService {
 
       await this.userRepository.save(user);
     }
-
+    await this.activityLogService.log({
+      actorType: ActorType.USER,
+      actorUserId: user.id,
+      actionType: ActionType.USER_REGISTERED ?? ActionType.GOOGLE_AUTH_SUCCESS,
+      entityType: EntityType.USER,
+      entityId: user.id,
+      metadata: {
+        email: user.email,
+        authProvider: AuthProvider.GOOGLE,
+        googleId: user.googleId,
+      },
+    });
     const accessToken = this.generateToken(user);
 
     return {
@@ -154,7 +246,21 @@ export class AuthService {
       user: this.sanitizeUser(user),
     };
   }
+  /**
+   * Déconnexion d'un utilisateur
+   */
+  async logout(userId: string): Promise<{ message: string }> {
+    // ✅ LOG : Déconnexion
+    await this.activityLogService.log({
+      actorType: ActorType.USER,
+      actorUserId: userId,
+      actionType: ActionType.USER_LOGOUT,
+      entityType: EntityType.USER,
+      entityId: userId,
+    });
 
+    return { message: 'Déconnexion réussie' };
+  }
   /**
    * Génère un token JWT
    */
