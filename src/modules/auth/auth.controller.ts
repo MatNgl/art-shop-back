@@ -1,4 +1,6 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Request } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Request, Res } from '@nestjs/common';
+import type { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto';
@@ -21,7 +23,10 @@ interface GoogleUser {
 @ApiTags('Authentification')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Créer un nouveau compte utilisateur' })
@@ -67,11 +72,15 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Callback Google OAuth' })
   @ApiResponse({
-    status: 200,
-    description: 'Connexion Google réussie',
+    status: 302,
+    description: 'Redirection vers le frontend',
   })
-  async googleCallback(@Request() req: { user: GoogleUser }) {
-    return this.authService.googleLogin(req.user);
+  async googleCallback(@Request() req: { user: GoogleUser }, @Res() res: Response) {
+    const { accessToken } = await this.authService.googleLogin(req.user);
+
+    // Redirige vers le frontend avec le token
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    res.redirect(`${frontendUrl}/auth/callback?token=${accessToken}`);
   }
 
   @Get('me')
