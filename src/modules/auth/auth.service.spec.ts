@@ -9,6 +9,7 @@ import { User, UserStatus, AuthProvider } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ActivityLogService } from '../activity-logs';
 
 // ✅ SOLUTION : Mocker bcrypt au niveau du module (avant tous les tests)
 // Cela évite les problèmes de "Cannot redefine property"
@@ -44,18 +45,28 @@ describe('AuthService', () => {
   };
 
   // Mock des repositories - on simule les méthodes TypeORM
-  const mockUserRepository: jest.Mocked<Partial<Repository<User>>> = {
+  const mockUserRepository = {
     findOne: jest.fn(), // Simule la recherche d'un utilisateur
     create: jest.fn(), // Simule la création d'une instance User
     save: jest.fn(), // Simule l'enregistrement en BDD
+    find: jest.fn(), // Simule la récupération de plusieurs utilisateurs
+    count: jest.fn(), // Simule le comptage des utilisateurs
+    remove: jest.fn(), // Simule la suppression d'un utilisateur
   };
 
   const mockRoleRepository = {
     findOne: jest.fn(), // Simule la recherche d'un rôle
+    find: jest.fn(), // Simule la récupération de plusieurs rôles
   };
 
   const mockJwtService = {
     sign: jest.fn(), // Simule la génération d'un token JWT
+  };
+
+  const mockActivityLogService = {
+    log: jest.fn().mockResolvedValue(null),
+    logUserAction: jest.fn().mockResolvedValue(null),
+    logError: jest.fn().mockResolvedValue(null),
   };
 
   // beforeEach : Prépare un environnement de test propre avant chaque test
@@ -78,6 +89,10 @@ describe('AuthService', () => {
           // Remplace le vrai JwtService par notre mock
           provide: JwtService,
           useValue: mockJwtService,
+        },
+        {
+          provide: ActivityLogService,
+          useValue: mockActivityLogService,
         },
       ],
     }).compile();

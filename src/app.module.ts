@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { ActivityLogModule } from './modules/activity-logs';
+import { UsersModule } from './modules/users';
 @Module({
   imports: [
     // Charge les variables d'environnement depuis .env
@@ -30,6 +31,7 @@ import { ActivityLogModule } from './modules/activity-logs';
     }),
     AuthModule,
     ActivityLogModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

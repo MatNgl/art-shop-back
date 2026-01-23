@@ -97,7 +97,7 @@ export class ActivityLogController {
   @ApiParam({
     name: 'userId',
     description: "UUID de l'utilisateur",
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: 'edde52aa-3659-4177-9689-9cf45caaee78',
   })
   @ApiResponse({
     status: 200,
@@ -129,7 +129,7 @@ export class ActivityLogController {
   @ApiParam({
     name: 'entityId',
     description: "UUID de l'entité",
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: 'edde52aa-3659-4177-9689-9cf45caaee78',
   })
   @ApiResponse({
     status: 200,

@@ -3,7 +3,7 @@ import { ActorType, ActionType, EntityType, LogSeverity } from '../entities/acti
 
 // DTO pour l'utilisateur acteur (relation)
 class ActorUserDto {
-  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiProperty({ example: 'edde52aa-3659-4177-9689-9cf45caaee78' })
   id!: string;
 
   @ApiProperty({ example: 'user@example.com' })
@@ -20,7 +20,7 @@ class ActorUserDto {
 export class ActivityLogDto {
   @ApiProperty({
     description: 'Identifiant unique du log',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: 'edde52aa-3659-4177-9689-9cf45caaee78',
   })
   id!: string;
 
@@ -33,7 +33,7 @@ export class ActivityLogDto {
 
   @ApiPropertyOptional({
     description: "UUID de l'utilisateur acteur",
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: 'edde52aa-3659-4177-9689-9cf45caaee78',
   })
   actorUserId?: string;
 
@@ -59,7 +59,7 @@ export class ActivityLogDto {
 
   @ApiPropertyOptional({
     description: "UUID de l'entité concernée",
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: 'edde52aa-3659-4177-9689-9cf45caaee78',
   })
   entityId?: string;
 

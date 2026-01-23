@@ -1,4 +1,4 @@
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 // Types d'acteur qui a effectué une action
@@ -29,7 +29,10 @@ export enum ActionType {
   PASSWORD_RESET_REQUESTED = 'PASSWORD_RESET_REQUESTED',
   PASSWORD_RESET_COMPLETED = 'PASSWORD_RESET_COMPLETED',
 
-  // A compléter avec d'autres actions selon les besoins
+  // Gestion des utilisateurs
+  USER_UPDATED = 'USER_UPDATED',
+  USER_STATUS_CHANGED = 'USER_STATUS_CHANGED',
+  USER_DELETED = 'USER_DELETED',
 }
 
 // Types d'entités concernées par les logs
