@@ -205,6 +205,10 @@ export class UsersService {
   async remove(id: string, currentUser: User): Promise<void> {
     const user = await this.findById(id);
 
+    // Vérification : on ne peut pas se supprimer soi-même
+    if (user.id === currentUser.id) {
+      throw new BadRequestException('Vous ne pouvez pas supprimer votre propre compte');
+    }
     // Vérification : un ADMIN ne peut pas supprimer un SUPER_ADMIN
     if (user.role.code === 'SUPER_ADMIN' && currentUser.role.code !== 'SUPER_ADMIN') {
       throw new ForbiddenException('Vous ne pouvez pas supprimer un Super Administrateur');
@@ -217,10 +221,6 @@ export class UsersService {
       });
       if (superAdminCount <= 1) {
         throw new BadRequestException('Impossible de supprimer le dernier Super Administrateur');
-      }
-      // Vérification : on ne peut pas se supprimer soi-même
-      if (user.id === currentUser.id) {
-        throw new BadRequestException('Vous ne pouvez pas supprimer votre propre compte');
       }
     }
 

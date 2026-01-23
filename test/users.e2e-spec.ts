@@ -562,25 +562,30 @@ describe('Users (e2e)', () => {
         .expect(403);
     });
 
-    it('devrait refuser de supprimer le dernier SUPER_ADMIN', async () => {
-      // Compte le nombre de SUPER_ADMIN
+    it("devrait permettre de supprimer un SUPER_ADMIN s'il en reste d'autres", async () => {
       const userRepository = dataSource.getRepository(User);
-      const superAdminCount = await userRepository.count({
-        where: { role: { code: 'SUPER_ADMIN' } },
-      });
+      const passwordHash = await bcrypt.hash('password123', 10);
 
-      // Si c'est le seul, la suppression doit échouer
-      if (superAdminCount === 1) {
-        return request(app.getHttpServer())
-          .delete(`/users/${superAdminUser.id}`)
-          .set('Authorization', `Bearer ${superAdminToken}`)
-          .expect(400)
-          .expect((res) => {
-            const body = res.body as ErrorResponse;
-            const message = typeof body.message === 'string' ? body.message : body.message.join(' ');
-            expect(message).toContain('dernier Super Administrateur');
-          });
-      }
+      // Crée un second SUPER_ADMIN à supprimer
+      const superAdminToDelete = userRepository.create({
+        email: 'superadmin-to-delete@test.com',
+        passwordHash,
+        role: superAdminRole,
+        roleId: superAdminRole.id,
+        status: UserStatus.ACTIVE,
+        authProvider: AuthProvider.LOCAL,
+      });
+      await userRepository.save(superAdminToDelete);
+
+      // Supprime avec le token du premier SUPER_ADMIN
+      await request(app.getHttpServer())
+        .delete(`/users/${superAdminToDelete.id}`)
+        .set('Authorization', `Bearer ${superAdminToken}`)
+        .expect(204);
+
+      // Vérifie la suppression
+      const deleted = await userRepository.findOne({ where: { id: superAdminToDelete.id } });
+      expect(deleted).toBeNull();
     });
 
     it('devrait retourner 404 pour un utilisateur inexistant', () => {
