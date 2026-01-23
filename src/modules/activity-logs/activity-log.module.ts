@@ -2,10 +2,12 @@ import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ActivityLog } from './entities/activity-log.entity';
 import { ActivityLogService } from './activity-log.service';
+import { ActivityLogController } from './activity-log.controller';
 
 @Global() // Rend le service disponible partout sans import explicite
 @Module({
   imports: [TypeOrmModule.forFeature([ActivityLog])],
+  controllers: [ActivityLogController],
   providers: [ActivityLogService],
   exports: [ActivityLogService],
 })

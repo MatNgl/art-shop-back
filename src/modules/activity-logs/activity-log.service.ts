@@ -1,3 +1,4 @@
+// src/modules/activity-logs/activity-log.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +15,19 @@ export interface CreateActivityLogDto {
   entityId?: string;
   severity?: LogSeverity;
   metadata?: Record<string, unknown>;
+}
+
+/**
+ * Interface pour les options de recherche
+ */
+export interface FindActivityLogsOptions {
+  page?: number;
+  limit?: number;
+  actorType?: ActorType;
+  actionType?: ActionType;
+  entityType?: EntityType;
+  actorUserId?: string;
+  severity?: LogSeverity;
 }
 
 @Injectable()
@@ -82,16 +96,9 @@ export class ActivityLogService {
   }
 
   /**
-   * Récupère les logs avec pagination
+   * Récupère les logs avec pagination et filtres
    */
-  async findAll(options?: {
-    page?: number;
-    limit?: number;
-    actionType?: ActionType;
-    entityType?: EntityType;
-    actorUserId?: string;
-    severity?: LogSeverity;
-  }): Promise<{ logs: ActivityLog[]; total: number }> {
+  async findAll(options?: FindActivityLogsOptions): Promise<{ logs: ActivityLog[]; total: number }> {
     const page = options?.page ?? 1;
     const limit = options?.limit ?? 50;
     const skip = (page - 1) * limit;
@@ -101,24 +108,35 @@ export class ActivityLogService {
       .leftJoinAndSelect('log.actorUser', 'user')
       .orderBy('log.createdAt', 'DESC');
 
+    // Filtre par type d'acteur
+    if (options?.actorType) {
+      queryBuilder.andWhere('log.actorType = :actorType', {
+        actorType: options.actorType,
+      });
+    }
+
+    // Filtre par type d'action
     if (options?.actionType) {
       queryBuilder.andWhere('log.actionType = :actionType', {
         actionType: options.actionType,
       });
     }
 
+    // Filtre par type d'entité
     if (options?.entityType) {
       queryBuilder.andWhere('log.entityType = :entityType', {
         entityType: options.entityType,
       });
     }
 
+    // Filtre par utilisateur acteur
     if (options?.actorUserId) {
       queryBuilder.andWhere('log.actorUserId = :actorUserId', {
         actorUserId: options.actorUserId,
       });
     }
 
+    // Filtre par sévérité
     if (options?.severity) {
       queryBuilder.andWhere('log.severity = :severity', {
         severity: options.severity,

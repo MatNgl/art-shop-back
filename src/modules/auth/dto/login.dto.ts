@@ -14,7 +14,7 @@ export class LoginDto {
     example: 'password123',
   })
   @IsString()
-  @MinLength(8)
-  @MaxLength(50)
+  @MinLength(6, { message: 'Le mot de passe doit contenir au moins 6 caractères' })
+  @MaxLength(50, { message: 'Le mot de passe ne peut pas dépasser 50 caractères' })
   password!: string;
 }
