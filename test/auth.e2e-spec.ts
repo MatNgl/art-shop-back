@@ -68,6 +68,7 @@ describe('Auth (e2e)', () => {
 
   // Nettoie la BDD APRÈS chaque test pour garantir l'isolation
   afterEach(async () => {
+    await dataSource.query('DELETE FROM activity_logs'); // Supprime les logs d'activité
     // Supprime tous les utilisateurs créés pendant le test
     await dataSource.query('DELETE FROM users');
   });

@@ -227,7 +227,7 @@ Le fichier `.prettierrc` définit les règles :
 npx prettier --check "src/**/*.ts"
 
 # Formater tout le code automatiquement
-npx prettier --write "src/**/*.ts"
+npx prettier --write "{src,test}/**/*.ts"
 
 # Formater un fichier spécifique
 npx prettier --write src/app.module.ts

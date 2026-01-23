@@ -26,7 +26,7 @@ import { UsersModule } from './modules/users';
         database: configService.get<string>('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'], // Charge toutes les entités automatiquement
         synchronize: false, // JAMAIS true en prod — on utilisera les migrations
-        logging: true, // Affiche les requêtes SQL en dev
+        logging: false, // Affiche les requêtes SQL en dev
       }),
     }),
     AuthModule,
