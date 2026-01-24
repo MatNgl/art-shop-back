@@ -25,6 +25,9 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column({ name: 'role_id', type: 'uuid' })
+  roleId!: string;
+
   @ManyToOne(() => Role, { eager: true })
   @JoinColumn({ name: 'role_id' })
   role!: Role;
