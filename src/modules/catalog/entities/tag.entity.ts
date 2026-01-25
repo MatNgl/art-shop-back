@@ -14,9 +14,6 @@ export class Tag {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'tag_id', type: 'uuid' })
-  tagId!: string;
-
   @Column({ type: 'varchar', length: 100, unique: true })
   name!: string;
 
