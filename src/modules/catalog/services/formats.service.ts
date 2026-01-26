@@ -1,10 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ActionType, ActivityLogService, ActorType, EntityType, LogSeverity } from 'src/modules/activity-logs';
 import { Repository } from 'typeorm';
-import { CreateFormatDto, UpdateFormatDto } from '../dto/index';
-import { User } from 'src/modules/users';
+import { CreateFormatDto, FormatResponseDto, UpdateFormatDto } from '../dto/index';
 import { Format } from '../entities';
+import { User } from 'src/modules/users';
+import { ActionType, ActivityLogService, ActorType, EntityType, LogSeverity } from 'src/modules/activity-logs';
 
 @Injectable()
 export class FormatsService {
@@ -14,10 +14,10 @@ export class FormatsService {
     private readonly activityLogService: ActivityLogService,
   ) {}
 
+  // ========================================
   // CREATE
-
-  async create(dto: CreateFormatDto, currentUser: User): Promise<Format> {
-    // Vérifie si le nom existe déjà
+  // ========================================
+  async create(dto: CreateFormatDto, currentUser: User): Promise<FormatResponseDto> {
     const existingFormat = await this.formatRepository.findOne({
       where: { name: dto.name },
     });
@@ -26,7 +26,6 @@ export class FormatsService {
       throw new ConflictException(`Le format "${dto.name}" existe déjà`);
     }
 
-    // Crée le format
     const format = this.formatRepository.create({
       ...dto,
       createdBy: currentUser.id,
@@ -34,7 +33,6 @@ export class FormatsService {
 
     const savedFormat = await this.formatRepository.save(format);
 
-    // Log l'action
     await this.activityLogService.log({
       actorType: this.getActorType(currentUser),
       actorUserId: currentUser.id,
@@ -48,35 +46,40 @@ export class FormatsService {
       },
     });
 
-    return savedFormat;
+    return this.toResponseDto(savedFormat);
   }
 
-  // Read all
-
-  async findAll(): Promise<Format[]> {
-    return this.formatRepository.find({
+  // ========================================
+  // READ ALL
+  // ========================================
+  async findAll(): Promise<FormatResponseDto[]> {
+    const formats = await this.formatRepository.find({
       order: { name: 'ASC' },
     });
+    return formats.map((f) => this.toResponseDto(f));
   }
 
-  // Read one
-
-  async findById(id: string): Promise<Format> {
-    const format = await this.formatRepository.findOne({
-      where: { id },
-    });
-
-    if (!format) {
-      throw new ConflictException(`Le format avec l'ID "${id}" n'existe pas`);
-    }
-    return format;
+  // ========================================
+  // READ ONE
+  // ========================================
+  async findById(id: string): Promise<FormatResponseDto> {
+    const format = await this.findEntityById(id);
+    return this.toResponseDto(format);
   }
 
-  // Update
-  async update(id: string, dto: UpdateFormatDto, currentUser: User): Promise<Format> {
-    const format = await this.findById(id);
+  // ========================================
+  // UPDATE
+  // ========================================
+  async update(id: string, dto: UpdateFormatDto, currentUser: User): Promise<FormatResponseDto> {
+    const format = await this.findEntityById(id);
 
-    // Si le nom change, vérifie s'il est déjà utilisé
+    const oldValues = {
+      name: format.name,
+      widthMm: format.widthMm,
+      heightMm: format.heightMm,
+      isCustom: format.isCustom,
+    };
+
     if (dto.name && dto.name !== format.name) {
       const existingFormat = await this.formatRepository.findOne({
         where: { name: dto.name },
@@ -91,12 +94,10 @@ export class FormatsService {
     if (dto.heightMm !== undefined) format.heightMm = dto.heightMm;
     if (dto.isCustom !== undefined) format.isCustom = dto.isCustom;
 
-    // Traçabilité
     format.modifiedBy = currentUser.id;
 
     const updatedFormat = await this.formatRepository.save(format);
 
-    // Log l'action
     await this.activityLogService.log({
       actorType: this.getActorType(currentUser),
       actorUserId: currentUser.id,
@@ -105,19 +106,25 @@ export class FormatsService {
       entityId: updatedFormat.id,
       severity: LogSeverity.INFO,
       metadata: {
-        formatName: updatedFormat.name,
-        updatedFields: Object.keys(dto),
+        oldValues,
+        newValues: {
+          name: updatedFormat.name,
+          widthMm: updatedFormat.widthMm,
+          heightMm: updatedFormat.heightMm,
+          isCustom: updatedFormat.isCustom,
+        },
       },
     });
 
-    return updatedFormat;
+    return this.toResponseDto(updatedFormat);
   }
 
-  // Delete
+  // ========================================
+  // DELETE
+  // ========================================
   async remove(id: string, currentUser: User): Promise<void> {
-    const format = await this.findById(id);
+    const format = await this.findEntityById(id);
 
-    //Log AVANT suppression
     await this.activityLogService.log({
       actorType: this.getActorType(currentUser),
       actorUserId: currentUser.id,
@@ -127,14 +134,40 @@ export class FormatsService {
       severity: LogSeverity.WARNING,
       metadata: {
         deletedFormatName: format.name,
-        dimensions: `${format.widthMm}x${format.heightMm}mm`,
+        widthMm: format.widthMm,
+        heightMm: format.heightMm,
       },
     });
 
     await this.formatRepository.remove(format);
   }
 
-  // Helpers
+  // ========================================
+  // PRIVATE HELPERS
+  // ========================================
+
+  /** Récupère l'entité - usage interne uniquement */
+  private async findEntityById(id: string): Promise<Format> {
+    const format = await this.formatRepository.findOne({ where: { id } });
+    if (!format) {
+      throw new NotFoundException(`Le format avec l'ID "${id}" n'existe pas`);
+    }
+    return format;
+  }
+
+  /** Transforme l'entité en DTO de réponse */
+  private toResponseDto(format: Format): FormatResponseDto {
+    return {
+      id: format.id,
+      name: format.name,
+      widthMm: format.widthMm,
+      heightMm: format.heightMm,
+      isCustom: format.isCustom,
+      createdAt: format.createdAt,
+      updatedAt: format.updatedAt,
+    };
+  }
+
   private getActorType(user: User): ActorType {
     if (user.role.code === 'SUPER_ADMIN') return ActorType.SUPERADMIN;
     if (user.role.code === 'ADMIN') return ActorType.ADMIN;

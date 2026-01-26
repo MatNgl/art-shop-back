@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tag } from '../entities/tag.entity';
-import { CreateTagDto, UpdateTagDto } from '../dto/tag.dto';
+import { CreateTagDto, TagResponseDto, UpdateTagDto } from '../dto/tag.dto';
 import { User } from '../../users/entities/user.entity';
 import { ActivityLogService, ActorType, ActionType, EntityType, LogSeverity } from '../../activity-logs';
 
@@ -64,7 +64,7 @@ export class TagsService {
   }
 
   // READ ALL
-  async findAll(): Promise<Tag[]> {
+  async findAll(): Promise<TagResponseDto[]> {
     return this.tagRepository.find({
       order: { name: 'ASC' },
     });
@@ -98,6 +98,8 @@ export class TagsService {
   // UPDATE
   async update(id: string, dto: UpdateTagDto, currentUser: User): Promise<Tag> {
     const tag = await this.findById(id);
+
+    const oldValues = { name: tag.name, slug: tag.slug };
 
     // Si le nom change, vérifie l'unicité et régénère le slug
     if (dto.name && dto.name !== tag.name) {
@@ -137,8 +139,8 @@ export class TagsService {
       severity: LogSeverity.INFO,
 
       metadata: {
-        tagName: updatedTag.name,
-        updatedFields: Object.keys(dto),
+        oldValues,
+        newValues: { name: updatedTag.name, slug: updatedTag.slug },
       },
     });
 
