@@ -14,7 +14,7 @@ export class Material {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 50 })
   name!: string;
 
   @Column({ type: 'text', nullable: true })
