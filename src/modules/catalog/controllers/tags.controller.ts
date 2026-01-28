@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTagDto, TagResponseDto, UpdateTagDto } from '../dto';
-import { Roles } from 'src/modules/auth/decorators';
-import { JwtAuthGuard, RolesGuard } from 'src/modules/auth/guards';
-import { User } from 'src/modules/users';
+import { Roles } from '../../auth/decorators';
+import { JwtAuthGuard, RolesGuard } from '../../auth/guards';
+import { User } from '../../users';
 import { TagsService } from '../services';
 
 interface RequestWithUser extends Request {

@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateFormatDto, FormatResponseDto, UpdateFormatDto } from '../dto/index';
 import { Format } from '../entities';
-import { User } from 'src/modules/users';
-import { ActionType, ActivityLogService, ActorType, EntityType, LogSeverity } from 'src/modules/activity-logs';
+import { User } from '../../users';
+import { ActionType, ActivityLogService, ActorType, EntityType, LogSeverity } from '../../activity-logs';
 
 @Injectable()
 export class FormatsService {
