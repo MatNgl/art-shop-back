@@ -74,7 +74,7 @@ export class CreateProductDto {
 
   @ApiPropertyOptional({
     description: 'IDs des tags à associer',
-    example: ['uuid-tag-japon', 'uuid-tag-paysage'],
+    example: ['2167c5f4-5bfa-45bd-ae08-d30656aa2a44', '958dad35-d82e-4bcc-85c0-01276015e49d'],
     type: [String],
   })
   @IsOptional()
@@ -146,6 +146,7 @@ export class UpdateProductDto {
 
   @ApiPropertyOptional({
     description: 'IDs des tags à associer (remplace les tags existants)',
+    example: ['2167c5f4-5bfa-45bd-ae08-d30656aa2a44', '958dad35-d82e-4bcc-85c0-01276015e49d'],
     type: [String],
   })
   @IsOptional()
