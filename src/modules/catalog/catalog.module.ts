@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product, ProductImage, ProductVariant, Format, Material, Tag } from './entities';
-import { TagsService } from './services/tags.service';
-import { FormatsService } from './services/formats.service';
-import { FormatsController, TagsController } from './controllers';
-import { MaterialsController } from './controllers/materials.controller';
-import { MaterialsService } from './services/materials.service';
+import { FormatsController, ProductsController, TagsController, MaterialsController } from './controllers';
+import { TagsService, FormatsService, MaterialsService, ProductsService } from './services';
+
 @Module({
   imports: [TypeOrmModule.forFeature([Product, ProductImage, ProductVariant, Format, Material, Tag])],
-  controllers: [FormatsController, TagsController, MaterialsController],
-  providers: [TagsService, FormatsService, MaterialsService],
-  exports: [TypeOrmModule, TagsService, FormatsService, MaterialsService],
+  controllers: [FormatsController, TagsController, MaterialsController, ProductsController],
+  providers: [TagsService, FormatsService, MaterialsService, ProductsService],
+  exports: [TypeOrmModule, TagsService, FormatsService, MaterialsService, ProductsService],
 })
 export class CatalogModule {}

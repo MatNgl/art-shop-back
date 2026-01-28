@@ -4,12 +4,26 @@ import { Role } from '../modules/roles/entities/role.entity';
 import { User, UserStatus, AuthProvider } from '../modules/users/entities/user.entity';
 import { Format } from '../modules/catalog/entities/format.entity';
 import { Material } from '../modules/catalog/entities/material.entity';
+import { Tag } from '../modules/catalog/entities/tag.entity';
+import { Product, ProductStatus } from '../modules/catalog/entities/product.entity';
 import * as bcrypt from 'bcrypt';
+
+/**
+ * Génère un slug URL-friendly à partir d'un nom
+ */
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 async function seed() {
   const dataSource = new DataSource({
     ...dataSourceOptions,
-    entities: [Role, User, Format, Material],
+    entities: [Role, User, Format, Material, Tag, Product],
   });
 
   await dataSource.initialize();
@@ -132,6 +146,111 @@ async function seed() {
       console.log(`✅ Matériau créé : ${materialData.name}`);
     } else {
       console.log(`⏭️  Matériau existant : ${materialData.name}`);
+    }
+  }
+
+  // ========================================
+  // 5. Seed des tags
+  // ========================================
+  const tagRepository = dataSource.getRepository(Tag);
+
+  const tagsData = [
+    { name: 'Japon' },
+    { name: 'Nature & Paysages' },
+    { name: 'Portrait' },
+    { name: 'Abstrait' },
+    { name: 'Urbain' },
+  ];
+
+  const savedTags: Record<string, Tag> = {};
+
+  for (const tagData of tagsData) {
+    const existingTag = await tagRepository.findOne({
+      where: { name: tagData.name },
+    });
+
+    if (!existingTag) {
+      const tag = tagRepository.create({
+        name: tagData.name,
+        slug: generateSlug(tagData.name),
+        createdBy: systemAdmin.id,
+      });
+      const saved = await tagRepository.save(tag);
+      savedTags[tagData.name] = saved;
+      console.log(`✅ Tag créé : ${tagData.name}`);
+    } else {
+      savedTags[tagData.name] = existingTag;
+      console.log(`⏭️  Tag existant : ${tagData.name}`);
+    }
+  }
+
+  // ========================================
+  // 6. Seed des produits
+  // ========================================
+  const productRepository = dataSource.getRepository(Product);
+
+  const productsData = [
+    {
+      name: 'Coucher de soleil sur Tokyo',
+      description:
+        "Cette œuvre capture la beauté éphémère d'un coucher de soleil sur la baie de Tokyo. Les teintes orangées se mêlent aux silhouettes des gratte-ciels, créant une atmosphère à la fois mélancolique et apaisante.",
+      shortDescription: 'Coucher de soleil japonais aux tons orangés',
+      status: ProductStatus.PUBLISHED,
+      featured: true,
+      seoTitle: 'Coucher de soleil Tokyo | Art Shop',
+      seoDescription: 'Découvrez cette œuvre unique capturant un coucher de soleil sur Tokyo.',
+      tagNames: ['Japon', 'Nature & Paysages', 'Urbain'],
+    },
+    {
+      name: 'Forêt de bambous de Kyoto',
+      description:
+        "Une immersion dans la célèbre forêt de bambous d'Arashiyama. La lumière filtre à travers les tiges élancées, créant des jeux d'ombre et de lumière hypnotiques.",
+      shortDescription: 'Forêt de bambous baignée de lumière',
+      status: ProductStatus.PUBLISHED,
+      featured: false,
+      seoTitle: 'Forêt de bambous Kyoto | Art Shop',
+      seoDescription: "Plongez dans l'atmosphère zen de la forêt de bambous de Kyoto.",
+      tagNames: ['Japon', 'Nature & Paysages'],
+    },
+    {
+      name: 'Portrait abstrait #01',
+      description:
+        "Une exploration des formes et des couleurs à travers le prisme de l'abstraction. Ce portrait déconstruit invite à une réflexion sur l'identité et la perception.",
+      shortDescription: 'Portrait déstructuré aux couleurs vives',
+      status: ProductStatus.DRAFT,
+      featured: false,
+      seoTitle: 'Portrait abstrait | Art Shop',
+      seoDescription: 'Une œuvre abstraite unique explorant les limites du portrait.',
+      tagNames: ['Portrait', 'Abstrait'],
+    },
+  ];
+
+  for (const productData of productsData) {
+    const existingProduct = await productRepository.findOne({
+      where: { name: productData.name },
+    });
+
+    if (!existingProduct) {
+      // Récupère les tags associés
+      const productTags = productData.tagNames.map((tagName) => savedTags[tagName]).filter((tag) => tag !== undefined);
+
+      const product = productRepository.create({
+        name: productData.name,
+        slug: generateSlug(productData.name),
+        description: productData.description,
+        shortDescription: productData.shortDescription,
+        status: productData.status,
+        featured: productData.featured,
+        seoTitle: productData.seoTitle,
+        seoDescription: productData.seoDescription,
+        tags: productTags,
+        createdBy: systemAdmin.id,
+      });
+
+      await productRepository.save(product);
+      console.log(`✅ Produit créé : ${productData.name} (${productTags.length} tags)`);
+    } else {
+      console.log(`⏭️  Produit existant : ${productData.name}`);
     }
   }
 
