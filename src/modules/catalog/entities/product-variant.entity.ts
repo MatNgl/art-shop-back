@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { Format } from './format.entity';
@@ -19,6 +20,7 @@ export enum ProductVariantStatus {
 }
 
 @Entity('product_variants')
+@Unique('UQ_product_format_material', ['productId', 'formatId', 'materialId'])
 export class ProductVariant {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

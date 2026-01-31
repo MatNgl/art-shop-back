@@ -102,6 +102,19 @@ export class UpdateProductVariantDto {
 }
 
 // ========================================
+// UPDATE STOCK — PATCH /products/:productId/variants/:id/stock
+// ========================================
+export class UpdateStockDto {
+  @ApiProperty({
+    description: 'Changement de quantité (+10 pour ajouter, -5 pour retirer)',
+    example: -2,
+  })
+  @IsInt({ message: 'La quantité doit être un entier' })
+  @IsNotEmpty({ message: 'La quantité est obligatoire' })
+  quantityChange!: number;
+}
+
+// ========================================
 // RESPONSE — Ce que l'API retourne
 // ========================================
 export class ProductVariantResponseDto {
