@@ -10,7 +10,7 @@ import { MaterialResponseDto } from './material.dto';
 export class CreateProductVariantDto {
   @ApiProperty({
     description: 'ID du format',
-    example: 'uuid-format-a4',
+    example: '23945a01-979e-4b3c-b3ff-b8ac0bb90db4',
   })
   @IsUUID('4', { message: 'formatId doit être un UUID valide' })
   @IsNotEmpty({ message: 'Le format est obligatoire' })
@@ -18,7 +18,7 @@ export class CreateProductVariantDto {
 
   @ApiProperty({
     description: 'ID du matériau',
-    example: 'uuid-material-toile',
+    example: '954595d8-42fd-4092-8729-d8cc8b562542',
   })
   @IsUUID('4', { message: 'materialId doit être un UUID valide' })
   @IsNotEmpty({ message: 'Le matériau est obligatoire' })

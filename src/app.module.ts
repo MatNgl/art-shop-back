@@ -7,6 +7,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ActivityLogModule } from './modules/activity-logs';
 import { UsersModule } from './modules/users';
 import { CatalogModule } from './modules/catalog';
+import { StorageModule } from './modules/storage';
+
 @Module({
   imports: [
     // Charge les variables d'environnement depuis .env
@@ -34,6 +36,7 @@ import { CatalogModule } from './modules/catalog';
     ActivityLogModule,
     UsersModule,
     CatalogModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
