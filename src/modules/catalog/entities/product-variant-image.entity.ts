@@ -1,14 +1,14 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Product } from './product.entity';
+import { ProductVariant } from './product-variant.entity';
 import { User } from '../../users/entities/user.entity';
 
-export enum ProductImageStatus {
+export enum ProductVariantImageStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
 }
 
-@Entity('product_images')
-export class ProductImage {
+@Entity('product_variant_images')
+export class ProductVariantImage {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -16,12 +16,14 @@ export class ProductImage {
   // Relations
   // ========================================
 
-  @Column({ name: 'product_id', type: 'uuid' })
-  productId!: string;
+  @Column({ name: 'variant_id', type: 'uuid' })
+  variantId!: string;
 
-  @ManyToOne(() => Product, (product) => product.images, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'product_id' })
-  product!: Product;
+  @ManyToOne(() => ProductVariant, (variant) => variant.images, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'variant_id' })
+  variant!: ProductVariant;
 
   @Column({ name: 'created_by', type: 'uuid' })
   createdById!: string;
@@ -34,7 +36,7 @@ export class ProductImage {
   // Cloudinary
   // ========================================
 
-  /** Identifiant Cloudinary (ex: "art-shop/products/mon-produit/main") */
+  /** Identifiant Cloudinary */
   @Column({ name: 'public_id', type: 'varchar', length: 255 })
   publicId!: string;
 
@@ -53,16 +55,16 @@ export class ProductImage {
   @Column({ type: 'integer', default: 0 })
   position!: number;
 
-  /** Image principale du produit */
+  /** Image principale de la variante */
   @Column({ name: 'is_primary', type: 'boolean', default: false })
   isPrimary!: boolean;
 
   @Column({
     type: 'varchar',
     length: 30,
-    default: ProductImageStatus.ACTIVE,
+    default: ProductVariantImageStatus.ACTIVE,
   })
-  status!: ProductImageStatus;
+  status!: ProductVariantImageStatus;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

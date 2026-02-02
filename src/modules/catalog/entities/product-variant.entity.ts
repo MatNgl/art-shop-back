@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
@@ -12,6 +13,7 @@ import { Format } from './format.entity';
 import { Product } from './product.entity';
 import { Material } from './material.entity';
 import { User } from '../../users/entities/user.entity';
+import { ProductVariantImage } from './product-variant-image.entity';
 
 export enum ProductVariantStatus {
   AVAILABLE = 'AVAILABLE',
@@ -24,6 +26,10 @@ export enum ProductVariantStatus {
 export class ProductVariant {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  // ========================================
+  // Relations produit / format / material
+  // ========================================
 
   @Column({ name: 'product_id', type: 'uuid' })
   productId!: string;
@@ -46,6 +52,10 @@ export class ProductVariant {
   @JoinColumn({ name: 'material_id' })
   material!: Material;
 
+  // ========================================
+  // Données variante
+  // ========================================
+
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price!: number;
 
@@ -54,6 +64,17 @@ export class ProductVariant {
 
   @Column({ type: 'varchar', length: 50, default: ProductVariantStatus.AVAILABLE })
   status!: ProductVariantStatus;
+
+  // ========================================
+  // Images de la variante
+  // ========================================
+
+  @OneToMany(() => ProductVariantImage, (image) => image.variant)
+  images!: ProductVariantImage[];
+
+  // ========================================
+  // Traçabilité
+  // ========================================
 
   @Column({ name: 'created_by', type: 'uuid' })
   createdBy!: string;

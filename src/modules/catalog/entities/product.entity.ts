@@ -6,11 +6,13 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Tag } from './tag.entity';
+import { ProductImage } from './product-image.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -58,6 +60,9 @@ export class Product {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
   tags!: Tag[];
+
+  @OneToMany(() => ProductImage, (image) => image.product)
+  images!: ProductImage[];
 
   // ========================================
   // Traçabilité
