@@ -1,22 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 import { ProductImageStatus } from '../entities/product-image.entity';
+import { Expose, Type } from 'class-transformer';
 
-// ========================================
-// CREATE — POST /products/:productId/images
-// ========================================
+/**
+ * DTO pour l'upload d'une image de produit.
+ * Le fichier est envoyé via multipart/form-data (géré par Multer).
+ * L'URL et le publicId sont générés par Cloudinary.
+ */
 export class CreateProductImageDto {
-  @ApiProperty({
-    description: "URL de l'image",
-    example: 'https://cdn.artshop.com/images/coucher-soleil-tokyo.jpg',
-  })
-  @IsString({ message: "L'URL doit être une chaîne de caractères" })
-  @IsNotEmpty({ message: "L'URL est obligatoire" })
-  @IsUrl({}, { message: "L'URL doit être valide" })
-  url!: string;
-
   @ApiPropertyOptional({
-    description: 'Texte alternatif (accessibilité)',
+    description: 'Texte alternatif (accessibilité & SEO)',
     example: 'Coucher de soleil sur la baie de Tokyo',
     maxLength: 255,
   })
@@ -53,19 +47,11 @@ export class CreateProductImageDto {
   isPrimary?: boolean;
 }
 
-// ========================================
-// UPDATE — PATCH /products/:productId/images/:imageId
-// ========================================
+/**
+ * DTO pour la mise à jour des métadonnées d'une image.
+ * Le fichier ne peut pas être modifié (supprimer + re-uploader si besoin).
+ */
 export class UpdateProductImageDto {
-  @ApiPropertyOptional({
-    description: "URL de l'image",
-    example: 'https://cdn.artshop.com/images/nouvelle-image.jpg',
-  })
-  @IsOptional()
-  @IsString({ message: "L'URL doit être une chaîne de caractères" })
-  @IsUrl({}, { message: "L'URL doit être valide" })
-  url?: string;
-
   @ApiPropertyOptional({
     description: 'Texte alternatif',
     maxLength: 255,
@@ -100,37 +86,82 @@ export class UpdateProductImageDto {
 }
 
 // ========================================
-// RESPONSE — Ce que l'API retourne
+// RESPONSE - URLs transformées
 // ========================================
+export class ImageUrlsDto {
+  @ApiProperty({ example: 'https://res.cloudinary.com/.../w_150,h_150/image.jpg' })
+  @Expose()
+  thumbnail!: string;
+
+  @ApiProperty({ example: 'https://res.cloudinary.com/.../w_300,h_300/image.jpg' })
+  @Expose()
+  small!: string;
+
+  @ApiProperty({ example: 'https://res.cloudinary.com/.../w_600,h_600/image.jpg' })
+  @Expose()
+  medium!: string;
+
+  @ApiProperty({ example: 'https://res.cloudinary.com/.../w_1200,h_1200/image.jpg' })
+  @Expose()
+  large!: string;
+
+  @ApiProperty({ example: 'https://res.cloudinary.com/.../q_auto/image.jpg' })
+  @Expose()
+  original!: string;
+}
+
+/**
+ * DTO de réponse pour une image de produit.
+ */
 export class ProductImageResponseDto {
   @ApiProperty({
     description: 'Identifiant unique',
     example: 'edde52aa-3659-4177-9689-9cf45caaee78',
   })
+  @Expose()
   id!: string;
 
   @ApiProperty({
     description: 'ID du produit associé',
     example: 'abcd1234-5678-90ab-cdef-1234567890ab',
   })
+  @Expose()
   productId!: string;
 
   @ApiProperty({
-    description: "URL de l'image",
-    example: 'https://cdn.artshop.com/images/coucher-soleil-tokyo.jpg',
+    description: 'Identifiant Cloudinary (pour suppression/transformation)',
+    example: 'art-shop/products/mon-produit/main',
   })
+  @Expose()
+  publicId!: string;
+
+  @ApiProperty({
+    description: 'URL de base HTTPS',
+    example: 'https://res.cloudinary.com/demo/image/upload/art-shop/products/mon-produit/main.jpg',
+  })
+  @Expose()
   url!: string;
+
+  @ApiProperty({
+    description: 'URLs dans toutes les tailles',
+    type: ImageUrlsDto,
+  })
+  @Expose()
+  @Type(() => ImageUrlsDto)
+  urls!: ImageUrlsDto;
 
   @ApiPropertyOptional({
     description: 'Texte alternatif',
     example: 'Coucher de soleil sur la baie de Tokyo',
   })
+  @Expose()
   altText?: string;
 
   @ApiProperty({
     description: 'Position dans le carrousel',
     example: 0,
   })
+  @Expose()
   position!: number;
 
   @ApiProperty({
@@ -138,17 +169,27 @@ export class ProductImageResponseDto {
     enum: ProductImageStatus,
     example: ProductImageStatus.ACTIVE,
   })
+  @Expose()
   status!: ProductImageStatus;
 
   @ApiProperty({
     description: 'Image principale ?',
     example: true,
   })
+  @Expose()
   isPrimary!: boolean;
 
   @ApiProperty({
     description: 'Date de création',
     example: '2025-01-25T20:00:00.000Z',
   })
+  @Expose()
   createdAt!: Date;
+
+  @ApiProperty({
+    description: "ID de l'utilisateur ayant uploadé",
+    example: '123e4567-e89b-12d3-a456-426614174002',
+  })
+  @Expose()
+  createdById!: string;
 }
