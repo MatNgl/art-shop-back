@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 import { ProductImageStatus } from '../entities/product-image.entity';
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 
 /**
  * DTO pour l'upload d'une image de produit.
@@ -25,6 +25,7 @@ export class CreateProductImageDto {
     default: 0,
   })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'La position doit être un entier' })
   @Min(0, { message: 'La position doit être positive' })
   position?: number;
@@ -42,6 +43,7 @@ export class CreateProductImageDto {
     description: 'Image principale du produit ?',
     default: false,
   })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   @IsBoolean({ message: 'isPrimary doit être un booléen' })
   isPrimary?: boolean;
@@ -65,6 +67,7 @@ export class UpdateProductImageDto {
     description: 'Position dans le carrousel',
   })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'La position doit être un entier' })
   @Min(0, { message: 'La position doit être positive' })
   position?: number;
@@ -81,6 +84,7 @@ export class UpdateProductImageDto {
     description: 'Image principale du produit ?',
   })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean({ message: 'isPrimary doit être un booléen' })
   isPrimary?: boolean;
 }

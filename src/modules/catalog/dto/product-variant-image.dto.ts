@@ -1,12 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 import { ProductVariantImageStatus } from '../entities/product-variant-image.entity';
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { ImageUrlsDto } from './product-image.dto';
 
-// ========================================
 // CREATE — POST /products/:productId/variants/:variantId/images
-// ========================================
 
 /**
  * DTO pour l'upload d'une image de variante.
@@ -30,6 +28,7 @@ export class CreateProductVariantImageDto {
     default: 0,
   })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'La position doit être un entier' })
   @Min(0, { message: 'La position doit être positive' })
   position?: number;
@@ -48,13 +47,12 @@ export class CreateProductVariantImageDto {
     default: false,
   })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean({ message: 'isPrimary doit être un booléen' })
   isPrimary?: boolean;
 }
 
-// ========================================
 // UPDATE — PATCH /products/:productId/variants/:variantId/images/:imageId
-// ========================================
 
 /**
  * DTO pour la mise à jour des métadonnées d'une image de variante.
@@ -74,6 +72,7 @@ export class UpdateProductVariantImageDto {
     description: 'Position dans le carrousel',
   })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt({ message: 'La position doit être un entier' })
   @Min(0, { message: 'La position doit être positive' })
   position?: number;
@@ -90,13 +89,12 @@ export class UpdateProductVariantImageDto {
     description: 'Image principale de la variante ?',
   })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean({ message: 'isPrimary doit être un booléen' })
   isPrimary?: boolean;
 }
 
-// ========================================
 // RESPONSE
-// ========================================
 
 /**
  * DTO de réponse pour une image de variante.

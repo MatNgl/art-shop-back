@@ -3,3 +3,5 @@ export * from './tags.service';
 export * from './materials.service';
 export * from './products.service';
 export * from './product-variants.service';
+export * from './product-images.service';
+export * from './product-variant-images.service';
