@@ -14,9 +14,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
-import { Roles } from 'src/modules/auth/decorators';
-import { JwtAuthGuard, RolesGuard } from 'src/modules/auth/guards';
-import { User } from 'src/modules/users';
+import { Roles } from '../../auth/decorators';
+import { JwtAuthGuard, RolesGuard } from '../../auth/guards';
+import { User } from '../../users';
 import { ProductResponseDto, CreateProductDto, UpdateProductDto } from '../dto';
 import { ProductsService } from '../services/products.service';
 import { ProductStatus } from '../entities';
