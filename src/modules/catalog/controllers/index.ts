@@ -3,3 +3,5 @@ export * from './tags.controller';
 export * from './materials.controller';
 export * from './products.controller';
 export * from './product-variants.controller';
+export * from './product-images.controller';
+export * from './product-variant-images.controller';
