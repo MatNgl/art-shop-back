@@ -13,6 +13,8 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Tag } from './tag.entity';
 import { ProductImage } from './product-image.entity';
+import { Category } from './category.entity';
+import { Subcategory } from './subcategory.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -63,6 +65,22 @@ export class Product {
 
   @OneToMany(() => ProductImage, (image) => image.product)
   images!: ProductImage[];
+
+  @ManyToMany(() => Category)
+  @JoinTable({
+    name: 'product_categories',
+    joinColumn: { name: 'product_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+  })
+  categories!: Category[];
+
+  @ManyToMany(() => Subcategory)
+  @JoinTable({
+    name: 'product_subcategories',
+    joinColumn: { name: 'product_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'subcategory_id', referencedColumnName: 'id' },
+  })
+  subcategories!: Subcategory[];
 
   // ========================================
   // Traçabilité

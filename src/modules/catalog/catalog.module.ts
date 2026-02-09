@@ -1,6 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Product, ProductImage, ProductVariant, ProductVariantImage, Format, Material, Tag } from './entities';
+import {
+  Product,
+  ProductImage,
+  ProductVariant,
+  ProductVariantImage,
+  Format,
+  Material,
+  Tag,
+  Category,
+  Subcategory,
+} from './entities';
 import {
   FormatsController,
   ProductsController,
@@ -22,7 +32,17 @@ import {
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImage, ProductVariant, ProductVariantImage, Format, Material, Tag]),
+    TypeOrmModule.forFeature([
+      Product,
+      ProductImage,
+      ProductVariant,
+      ProductVariantImage,
+      Format,
+      Material,
+      Tag,
+      Category,
+      Subcategory,
+    ]),
   ],
   controllers: [
     FormatsController,

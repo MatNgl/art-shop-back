@@ -5,3 +5,4 @@ export * from './product.dto';
 export * from './product-image.dto';
 export * from './product-variant.dto';
 export * from './product-variant-image.dto';
+export * from './category.dto';

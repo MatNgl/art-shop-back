@@ -5,3 +5,5 @@ export * from './product-variant-image.entity';
 export * from './format.entity';
 export * from './material.entity';
 export * from './tag.entity';
+export * from './category.entity';
+export * from './subcategory.entity';
