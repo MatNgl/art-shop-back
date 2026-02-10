@@ -33,15 +33,15 @@
 
 ## 🛠 Stack technique
 
-| Technologie | Rôle |
-|-------------|------|
-| **NestJS** | Framework backend Node.js |
-| **TypeScript** | Typage strict |
-| **PostgreSQL** | Base de données relationnelle |
-| **TypeORM** | ORM pour la gestion des entités |
-| **Passport + JWT** | Authentification |
-| **Swagger** | Documentation API |
-| **Docker** | Conteneurisation |
+| Technologie        | Rôle                            |
+| ------------------ | ------------------------------- |
+| **NestJS**         | Framework backend Node.js       |
+| **TypeScript**     | Typage strict                   |
+| **PostgreSQL**     | Base de données relationnelle   |
+| **TypeORM**        | ORM pour la gestion des entités |
+| **Passport + JWT** | Authentification                |
+| **Swagger**        | Documentation API               |
+| **Docker**         | Conteneurisation                |
 
 ---
 
@@ -103,11 +103,11 @@ docker-compose ps
 
 ### Services disponibles
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| **PostgreSQL** | `localhost:5432` | Base de données |
-| **CloudBeaver** | `http://localhost:8080` | Interface web pour la BDD |
-| **Dev Hub** | `http://localhost:8000` | Page d'accueil développeur |
+| Service         | URL                     | Description                |
+| --------------- | ----------------------- | -------------------------- |
+| **PostgreSQL**  | `localhost:5432`        | Base de données            |
+| **CloudBeaver** | `http://localhost:8080` | Interface web pour la BDD  |
+| **Dev Hub**     | `http://localhost:8000` | Page d'accueil développeur |
 
 ---
 
@@ -130,12 +130,12 @@ npm run start:prod
 
 ### URLs après lancement
 
-| Service | URL |
-|---------|-----|
-| **API Backend** | `http://localhost:3000` |
+| Service                     | URL                         |
+| --------------------------- | --------------------------- |
+| **API Backend**             | `http://localhost:3000`     |
 | **Swagger (Documentation)** | `http://localhost:3000/api` |
-| **Dev Hub** | `http://localhost:8000` |
-| **CloudBeaver** | `http://localhost:8080` |
+| **Dev Hub**                 | `http://localhost:8000`     |
+| **CloudBeaver**             | `http://localhost:8080`     |
 
 ---
 
@@ -196,6 +196,7 @@ npm run seed:run
 ```
 
 Rôles créés par défaut :
+
 - `SUPER_ADMIN` — Super Administrateur
 - `ADMIN` — Administrateur
 - `USER` — Utilisateur
@@ -210,6 +211,7 @@ Prettier garantit un style de code cohérent dans tout le projet.
 ### Configuration
 
 Le fichier `.prettierrc` définit les règles :
+
 ```json
 {
   "semi": true,
@@ -298,12 +300,12 @@ La documentation Swagger est générée automatiquement.
 
 ### Endpoints disponibles (Auth)
 
-| Méthode | Endpoint | Description |
-|---------|----------|-------------|
-| `POST` | `/auth/register` | Créer un compte |
-| `POST` | `/auth/login` | Se connecter |
-| `GET` | `/auth/me` | Profil utilisateur (🔒 JWT) |
-| `POST` | `/auth/logout` | Se déconnecter (🔒 JWT) |
+| Méthode | Endpoint         | Description                 |
+| ------- | ---------------- | --------------------------- |
+| `POST`  | `/auth/register` | Créer un compte             |
+| `POST`  | `/auth/login`    | Se connecter                |
+| `GET`   | `/auth/me`       | Profil utilisateur (🔒 JWT) |
+| `POST`  | `/auth/logout`   | Se déconnecter (🔒 JWT)     |
 
 ---
 
@@ -341,21 +343,21 @@ src/
 
 ## 📝 Commandes utiles — Résumé
 
-| Action | Commande |
-|--------|----------|
-| Installer les dépendances | `npm install` |
-| Démarrer Docker | `docker-compose up -d` |
-| Arrêter Docker | `docker-compose down` |
-| Lancer en dev | `npm run start:dev` |
-| Compiler | `npm run build` |
-| Générer migration | `npm run migration:generate src/migrations/Nom` |
-| Exécuter migrations | `npm run migration:run` |
-| Annuler migration | `npm run migration:revert` |
-| Lancer les seeds | `npm run seed:run` |
-| Formater le code | `npm run format` |
-| Linter le code | `npm run lint` |
-| Tests unitaires | `npm run test` |
-| Tests e2e | `npm run test:e2e` |
+| Action                    | Commande                                        |
+| ------------------------- | ----------------------------------------------- |
+| Installer les dépendances | `npm install`                                   |
+| Démarrer Docker           | `docker-compose up -d`                          |
+| Arrêter Docker            | `docker-compose down`                           |
+| Lancer en dev             | `npm run start:dev`                             |
+| Compiler                  | `npm run build`                                 |
+| Générer migration         | `npm run migration:generate src/migrations/Nom` |
+| Exécuter migrations       | `npm run migration:run`                         |
+| Annuler migration         | `npm run migration:revert`                      |
+| Lancer les seeds          | `npm run seed:run`                              |
+| Formater le code          | `npm run format`                                |
+| Linter le code            | `npm run lint`                                  |
+| Tests unitaires           | `npm run test`                                  |
+| Tests e2e                 | `npm run test:e2e`                              |
 
 ---
 

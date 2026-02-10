@@ -5,3 +5,5 @@ export * from './products.service';
 export * from './product-variants.service';
 export * from './product-images.service';
 export * from './product-variant-images.service';
+export * from './categories.service';
+export * from './subcategories.service';

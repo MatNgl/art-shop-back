@@ -8,20 +8,20 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data # Données persistantes
 
   cloudbeaver:
-    image: dbeaver/cloudbeaver:latest    # Interface web moderne pour BDD
+    image: dbeaver/cloudbeaver:latest # Interface web moderne pour BDD
     container_name: artshop_cloudbeaver
     restart: unless-stopped
     ports:
-      - "8080:8978"                      # Accessible sur localhost:8080
+      - '8080:8978' # Accessible sur localhost:8080
     volumes:
-      - cloudbeaver_data:/opt/cloudbeaver/workspace  # Config persistante
+      - cloudbeaver_data:/opt/cloudbeaver/workspace # Config persistante
     environment:
-      CB_SERVER_NAME: "ArtShop Database"
+      CB_SERVER_NAME: 'ArtShop Database'
       CB_ADMIN_NAME: adminsql
       CB_ADMIN_PASSWORD: Admin123
     depends_on:
@@ -32,9 +32,9 @@ services:
     container_name: artshop_dev_hub
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - '8000:80'
     volumes:
-      - ./dev-hub:/usr/share/nginx/html:ro  # Contenu statique du hub dev
+      - ./dev-hub:/usr/share/nginx/html:ro # Contenu statique du hub dev
 
 volumes:
   postgres_data:

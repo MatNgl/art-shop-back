@@ -6,8 +6,12 @@ import { Format } from '../modules/catalog/entities/format.entity';
 import { Material } from '../modules/catalog/entities/material.entity';
 import { Tag } from '../modules/catalog/entities/tag.entity';
 import { Product, ProductStatus } from '../modules/catalog/entities/product.entity';
+import { Category } from '../modules/catalog/entities/category.entity';
+import { Subcategory } from '../modules/catalog/entities/subcategory.entity';
+import { ProductImage } from '../modules/catalog/entities/product-image.entity';
+import { ProductVariant } from '../modules/catalog/entities/product-variant.entity';
+import { ProductVariantImage } from '../modules/catalog/entities/product-variant-image.entity';
 import * as bcrypt from 'bcrypt';
-
 /**
  * Génère un slug URL-friendly à partir d'un nom
  */
@@ -23,7 +27,19 @@ function generateSlug(name: string): string {
 async function seed() {
   const dataSource = new DataSource({
     ...dataSourceOptions,
-    entities: [Role, User, Format, Material, Tag, Product],
+    entities: [
+      Role,
+      User,
+      Format,
+      Material,
+      Tag,
+      Product,
+      ProductImage,
+      ProductVariant,
+      ProductVariantImage,
+      Category,
+      Subcategory,
+    ],
   });
 
   await dataSource.initialize();
@@ -185,7 +201,86 @@ async function seed() {
   }
 
   // ========================================
-  // 6. Seed des produits
+  // 6. Seed des catégories
+  // ========================================
+  const categoryRepository = dataSource.getRepository(Category);
+
+  const categoriesData = [
+    { name: 'Illustrations', position: 0 },
+    { name: 'Photographies', position: 1 },
+    { name: 'Art Digital', position: 2 },
+  ];
+
+  const savedCategories: Record<string, Category> = {};
+
+  for (const categoryData of categoriesData) {
+    const existingCategory = await categoryRepository.findOne({
+      where: { name: categoryData.name },
+    });
+
+    if (!existingCategory) {
+      const category = categoryRepository.create({
+        name: categoryData.name,
+        slug: generateSlug(categoryData.name),
+        position: categoryData.position,
+        createdBy: systemAdmin.id,
+      });
+      const saved = await categoryRepository.save(category);
+      savedCategories[categoryData.name] = saved;
+      console.log(`✅ Catégorie créée : ${categoryData.name}`);
+    } else {
+      savedCategories[categoryData.name] = existingCategory;
+      console.log(`⏭️  Catégorie existante : ${categoryData.name}`);
+    }
+  }
+
+  // ========================================
+  // 7. Seed des sous-catégories
+  // ========================================
+  const subcategoryRepository = dataSource.getRepository(Subcategory);
+
+  const subcategoriesData = [
+    { name: 'Japon', categoryName: 'Illustrations', position: 0 },
+    { name: 'Nature', categoryName: 'Illustrations', position: 1 },
+    { name: 'Portraits', categoryName: 'Illustrations', position: 2 },
+    { name: 'Paysages', categoryName: 'Photographies', position: 0 },
+    { name: 'Architecture', categoryName: 'Photographies', position: 1 },
+    { name: 'Abstrait', categoryName: 'Art Digital', position: 0 },
+  ];
+
+  const savedSubcategories: Record<string, Subcategory> = {};
+
+  for (const subcategoryData of subcategoriesData) {
+    const parentCategory = savedCategories[subcategoryData.categoryName];
+
+    if (!parentCategory) {
+      console.log(`⚠️  Catégorie parente non trouvée pour : ${subcategoryData.name}`);
+      continue;
+    }
+
+    const existingSubcategory = await subcategoryRepository.findOne({
+      where: { name: subcategoryData.name, categoryId: parentCategory.id },
+    });
+
+    if (!existingSubcategory) {
+      const subcategory = subcategoryRepository.create({
+        name: subcategoryData.name,
+        slug: generateSlug(subcategoryData.name),
+        position: subcategoryData.position,
+        categoryId: parentCategory.id,
+        createdBy: systemAdmin.id,
+      });
+      const saved = await subcategoryRepository.save(subcategory);
+      savedSubcategories[subcategoryData.name] = saved;
+      console.log(`✅ Sous-catégorie créée : ${subcategoryData.name} (dans ${subcategoryData.categoryName})`);
+    } else {
+      savedSubcategories[subcategoryData.name] = existingSubcategory;
+      console.log(`⏭️  Sous-catégorie existante : ${subcategoryData.name}`);
+    }
+  }
+
+  // ========================================
+  // 8. Seed des produits
   // ========================================
   const productRepository = dataSource.getRepository(Product);
 
@@ -200,6 +295,8 @@ async function seed() {
       seoTitle: 'Coucher de soleil Tokyo | Art Shop',
       seoDescription: 'Découvrez cette œuvre unique capturant un coucher de soleil sur Tokyo.',
       tagNames: ['Japon', 'Nature & Paysages', 'Urbain'],
+      categoryNames: ['Illustrations'],
+      subcategoryNames: ['Japon'],
     },
     {
       name: 'Forêt de bambous de Kyoto',
@@ -211,6 +308,21 @@ async function seed() {
       seoTitle: 'Forêt de bambous Kyoto | Art Shop',
       seoDescription: "Plongez dans l'atmosphère zen de la forêt de bambous de Kyoto.",
       tagNames: ['Japon', 'Nature & Paysages'],
+      categoryNames: ['Illustrations'],
+      subcategoryNames: ['Nature'],
+    },
+    {
+      name: 'Mont Fuji au lever du jour',
+      description:
+        "Le Mont Fuji se dévoile dans la brume matinale, majestueux et intemporel. Cette illustration capture l'essence de la montagne sacrée du Japon dans une palette de bleus et de roses délicats.",
+      shortDescription: 'Mont Fuji dans la brume matinale',
+      status: ProductStatus.PUBLISHED,
+      featured: true,
+      seoTitle: 'Mont Fuji illustration | Art Shop',
+      seoDescription: 'Illustration artistique du Mont Fuji au lever du soleil.',
+      tagNames: ['Japon', 'Nature & Paysages'],
+      categoryNames: ['Illustrations'],
+      subcategoryNames: ['Japon', 'Nature'],
     },
     {
       name: 'Portrait abstrait #01',
@@ -222,6 +334,8 @@ async function seed() {
       seoTitle: 'Portrait abstrait | Art Shop',
       seoDescription: 'Une œuvre abstraite unique explorant les limites du portrait.',
       tagNames: ['Portrait', 'Abstrait'],
+      categoryNames: ['Art Digital'],
+      subcategoryNames: ['Abstrait'],
     },
   ];
 
@@ -232,7 +346,19 @@ async function seed() {
 
     if (!existingProduct) {
       // Récupère les tags associés
-      const productTags = productData.tagNames.map((tagName) => savedTags[tagName]).filter((tag) => tag !== undefined);
+      const productTags = productData.tagNames
+        .map((tagName) => savedTags[tagName])
+        .filter((tag): tag is Tag => tag !== undefined);
+
+      // Récupère les catégories associées
+      const productCategories = productData.categoryNames
+        .map((catName) => savedCategories[catName])
+        .filter((cat): cat is Category => cat !== undefined);
+
+      // Récupère les sous-catégories associées
+      const productSubcategories = productData.subcategoryNames
+        .map((subName) => savedSubcategories[subName])
+        .filter((sub): sub is Subcategory => sub !== undefined);
 
       const product = productRepository.create({
         name: productData.name,
@@ -244,11 +370,15 @@ async function seed() {
         seoTitle: productData.seoTitle,
         seoDescription: productData.seoDescription,
         tags: productTags,
+        categories: productCategories,
+        subcategories: productSubcategories,
         createdBy: systemAdmin.id,
       });
 
       await productRepository.save(product);
-      console.log(`✅ Produit créé : ${productData.name} (${productTags.length} tags)`);
+      console.log(
+        `✅ Produit créé : ${productData.name} (${productTags.length} tags, ${productCategories.length} catégories, ${productSubcategories.length} sous-catégories)`,
+      );
     } else {
       console.log(`⏭️  Produit existant : ${productData.name}`);
     }

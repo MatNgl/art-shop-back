@@ -19,6 +19,8 @@ import {
   ProductVariantsController,
   ProductImagesController,
   ProductVariantImagesController,
+  CategoriesController,
+  SubcategoriesController,
 } from './controllers';
 import {
   TagsService,
@@ -28,7 +30,12 @@ import {
   ProductVariantsService,
   ProductImagesService,
   ProductVariantImagesService,
+  CategoriesService,
+  SubcategoriesService,
 } from './services';
+
+// Modules
+import { ActivityLogModule } from '../activity-logs/activity-log.module';
 
 @Module({
   imports: [
@@ -43,6 +50,8 @@ import {
       Category,
       Subcategory,
     ]),
+    ActivityLogModule,
+    // StorageModule retiré car @Global() dans AppModule
   ],
   controllers: [
     FormatsController,
@@ -52,6 +61,8 @@ import {
     ProductVariantsController,
     ProductImagesController,
     ProductVariantImagesController,
+    CategoriesController,
+    SubcategoriesController,
   ],
   providers: [
     TagsService,
@@ -61,6 +72,8 @@ import {
     ProductVariantsService,
     ProductImagesService,
     ProductVariantImagesService,
+    CategoriesService,
+    SubcategoriesService,
   ],
   exports: [
     TypeOrmModule,
@@ -71,6 +84,8 @@ import {
     ProductVariantsService,
     ProductImagesService,
     ProductVariantImagesService,
+    CategoriesService,
+    SubcategoriesService,
   ],
 })
 export class CatalogModule {}

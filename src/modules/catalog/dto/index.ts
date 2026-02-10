@@ -6,3 +6,4 @@ export * from './product-image.dto';
 export * from './product-variant.dto';
 export * from './product-variant-image.dto';
 export * from './category.dto';
+export * from './subcategory.dto';

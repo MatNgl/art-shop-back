@@ -24,6 +24,6 @@
     "strict": true,
     "strictPropertyInitialization": true,
     "noImplicitReturns": false,
-    "noFallthroughCasesInSwitch": true,
+    "noFallthroughCasesInSwitch": true
   }
 }
