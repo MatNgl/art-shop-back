@@ -87,25 +87,34 @@ describe('Auth (e2e)', () => {
       // LISTE DE TOUTES LES TABLES DE CONTENU (qui peuvent référencer un user)
       // L'ordre n'a pas d'importance ici grâce au CASCADE
       const tablesToClean = [
+        // Images
         'product_variant_images',
-        'product_images', // C'était la cause de l'erreur dans le test product-images
+        'product_images',
+        // Variants
         'product_variants',
+        // Products (relations N-N)
+        'product_categories',
+        'product_subcategories',
+        // Categories
+        'subcategories',
+        'categories',
+        // Products
         'products',
+        // Catalog
         'formats',
-        'materials', // Le coupable actuel
+        'materials',
+        'tags',
+        // Logs
         'activity_logs',
       ];
 
       // TRUNCATE est beaucoup plus rapide que DELETE et CASCADE gère les dépendances
-      // Cela vide ces tables proprement
       await ds.query(`TRUNCATE TABLE ${tablesToClean.join(', ')} CASCADE`);
 
       // Ensuite, on supprime les utilisateurs de test
-      // (On garde DELETE ici pour ne pas supprimer tes admins ou rôles fixes si tu en as)
       await ds.query("DELETE FROM users WHERE email LIKE '%@example.com'");
     } catch (error) {
       console.error('ERREUR CRITIQUE NETTOYAGE BDD:', error);
-      // Si le nettoyage échoue, on veut le savoir tout de suite car tous les tests suivants vont échouer
       throw error;
     }
   };
