@@ -245,7 +245,6 @@ export class SubcategoriesService {
   // PRIVATE HELPERS
   // ========================================
 
-  /** Génère un slug à partir du nom */
   private generateSlug(name: string): string {
     return name
       .toLowerCase()
@@ -255,7 +254,6 @@ export class SubcategoriesService {
       .replace(/^-|-$/g, '');
   }
 
-  /** Transforme l'entité en DTO de réponse */
   private toResponseDto(subcategory: Subcategory): SubcategoryResponseDto {
     return {
       id: subcategory.id,
@@ -270,7 +268,6 @@ export class SubcategoriesService {
     };
   }
 
-  /** Transforme l'entité en DTO avec catégorie */
   private toResponseWithCategoryDto(subcategory: Subcategory): SubcategoryWithCategoryResponseDto {
     return {
       ...this.toResponseDto(subcategory),

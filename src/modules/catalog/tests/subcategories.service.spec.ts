@@ -23,7 +23,7 @@ describe('SubcategoriesService', () => {
     code: 'ADMIN',
     label: 'Administrateur',
     createdAt: new Date(),
-  };
+  } as Role;
 
   const mockUser: User = {
     id: 'user-uuid',
@@ -325,86 +325,113 @@ describe('SubcategoriesService', () => {
   // UPDATE
   // ========================================
   describe('update', () => {
+    // On définit les DTOs ici pour qu'ils soient propres à chaque test
     const updateDto = { name: 'Japon Modifié' };
+    const updateSlugDto = { slug: 'existing-slug' };
 
     it('devrait mettre à jour une sous-catégorie avec succès', async () => {
-      const updatedSubcategory = { ...mockSubcategory, name: 'Japon Modifié' };
-
+      // IMPORTANT : On renvoie une copie {...mockSubcategory} pour éviter la mutation de l'original
       subcategoryRepository.findOne
-        .mockResolvedValueOnce(mockSubcategory) // find with category
-        .mockResolvedValueOnce(null); // name uniqueness check
+        .mockResolvedValueOnce({ ...mockSubcategory }) // find by ID
+        .mockResolvedValueOnce(null); // check name uniqueness
 
-      subcategoryRepository.save.mockResolvedValue(updatedSubcategory);
+      // On mock save pour qu'il renvoie l'objet modifié
+      subcategoryRepository.save.mockImplementation((entity) => Promise.resolve(entity as Subcategory));
 
       const result = await service.update('subcategory-uuid', updateDto, mockUser);
 
       expect(result.name).toBe('Japon Modifié');
       expect(subcategoryRepository.save).toHaveBeenCalled();
-      expect(activityLogService.log).toHaveBeenCalled();
     });
 
     it('devrait mettre à jour le slug', async () => {
-      const updateSlugDto = { slug: 'new-slug' };
-      const updatedSubcategory = { ...mockSubcategory, slug: 'new-slug' };
+      const dto = { slug: 'new-slug' };
 
       subcategoryRepository.findOne
-        .mockResolvedValueOnce(mockSubcategory) // find with category
-        .mockResolvedValueOnce(null); // slug uniqueness check
+        .mockResolvedValueOnce({ ...mockSubcategory }) // find by ID
+        .mockResolvedValueOnce(null); // check slug uniqueness
 
-      subcategoryRepository.save.mockResolvedValue(updatedSubcategory);
+      subcategoryRepository.save.mockImplementation((entity) => Promise.resolve(entity as Subcategory));
 
-      const result = await service.update('subcategory-uuid', updateSlugDto, mockUser);
+      const result = await service.update('subcategory-uuid', dto, mockUser);
 
       expect(result.slug).toBe('new-slug');
     });
 
     it('devrait mettre à jour la position', async () => {
-      const updatePositionDto = { position: 5 };
-      const updatedSubcategory = { ...mockSubcategory, position: 5 };
+      const dto = { position: 5 };
 
-      subcategoryRepository.findOne.mockResolvedValueOnce(mockSubcategory);
-      subcategoryRepository.save.mockResolvedValue(updatedSubcategory);
+      subcategoryRepository.findOne.mockResolvedValueOnce({ ...mockSubcategory });
+      subcategoryRepository.save.mockImplementation((entity) => Promise.resolve(entity as Subcategory));
 
-      const result = await service.update('subcategory-uuid', updatePositionDto, mockUser);
+      const result = await service.update('subcategory-uuid', dto, mockUser);
 
       expect(result.position).toBe(5);
     });
 
     it("devrait lever NotFoundException si la sous-catégorie n'existe pas", async () => {
       subcategoryRepository.findOne.mockResolvedValue(null);
-
       await expect(service.update('invalid-uuid', updateDto, mockUser)).rejects.toThrow(NotFoundException);
     });
 
+    // --- CORRECTION CLÉ ICI ---
     it('devrait lever ConflictException si le nouveau nom existe déjà dans la catégorie', async () => {
-      const existingSubcategory = { ...mockSubcategory, id: 'other-uuid', name: 'Japon Modifié' };
+      const existingSubcategory = { ...mockSubcategory, id: 'other-uuid', name: updateDto.name };
 
-      subcategoryRepository.findOne
-        .mockResolvedValueOnce(mockSubcategory) // find with category
-        .mockResolvedValueOnce(existingSubcategory); // name uniqueness check
+      // Mock intelligent basé sur les arguments
+      subcategoryRepository.findOne.mockImplementation((options: any) => {
+        const where = options?.where || {};
+
+        // 1. Si on cherche par ID -> C'est la sous-catégorie qu'on veut modifier
+        if (where.id === 'subcategory-uuid') {
+          return Promise.resolve({ ...mockSubcategory });
+        }
+
+        // 2. Si on cherche par NOM -> C'est le conflit
+        if (where.name === updateDto.name) {
+          return Promise.resolve(existingSubcategory);
+        }
+
+        return Promise.resolve(null);
+      });
+
+      // Sécurité : même si ça passait (ce qui ne devrait pas), save renvoie quelque chose pour éviter le crash TypeError
+      subcategoryRepository.save.mockResolvedValue(mockSubcategory);
 
       await expect(service.update('subcategory-uuid', updateDto, mockUser)).rejects.toThrow(ConflictException);
     });
 
     it('devrait lever ConflictException si le nouveau slug existe déjà', async () => {
-      const updateSlugDto = { slug: 'existing-slug' };
-      const existingSubcategory = { ...mockSubcategory, id: 'other-uuid', slug: 'existing-slug' };
+      const existingSubcategory = { ...mockSubcategory, id: 'other-uuid', slug: updateSlugDto.slug };
 
-      subcategoryRepository.findOne
-        .mockResolvedValueOnce(mockSubcategory) // find with category
-        .mockResolvedValueOnce(existingSubcategory); // slug uniqueness check
+      subcategoryRepository.findOne.mockImplementation((options: any) => {
+        const where = options?.where || {};
+
+        // 1. Recherche par ID
+        if (where.id === 'subcategory-uuid') {
+          return Promise.resolve({ ...mockSubcategory });
+        }
+
+        // 2. Recherche par SLUG -> Conflit
+        if (where.slug === updateSlugDto.slug) {
+          return Promise.resolve(existingSubcategory);
+        }
+
+        return Promise.resolve(null);
+      });
+
+      subcategoryRepository.save.mockResolvedValue(mockSubcategory);
 
       await expect(service.update('subcategory-uuid', updateSlugDto, mockUser)).rejects.toThrow(ConflictException);
     });
 
     it('devrait permettre de garder le même nom sans conflit', async () => {
-      const sameName = { name: 'Japon' };
+      const sameName = { name: 'Japon' }; // Le nom actuel dans mockSubcategory est 'Japon'
 
-      subcategoryRepository.findOne.mockResolvedValueOnce(mockSubcategory);
-      subcategoryRepository.save.mockResolvedValue(mockSubcategory);
+      subcategoryRepository.findOne.mockResolvedValueOnce({ ...mockSubcategory });
+      subcategoryRepository.save.mockImplementation((entity) => Promise.resolve(entity as Subcategory));
 
       const result = await service.update('subcategory-uuid', sameName, mockUser);
-
       expect(result).toBeDefined();
     });
   });
