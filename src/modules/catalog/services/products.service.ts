@@ -108,7 +108,7 @@ export class ProductsService {
   async findAllPublished(): Promise<Product[]> {
     return this.productRepository.find({
       where: { status: ProductStatus.PUBLISHED },
-      relations: ['tags'],
+      relations: ['tags', 'categories', 'subcategories'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -149,7 +149,7 @@ export class ProductsService {
   async findBySlug(slug: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { slug },
-      relations: ['tags'],
+      relations: ['tags', 'categories', 'subcategories'], // ← ajout
     });
 
     if (!product) {
