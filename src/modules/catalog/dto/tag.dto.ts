@@ -32,6 +32,9 @@ export class TagResponseDto {
   })
   id!: string;
 
+  @ApiProperty({ description: 'Nom du tag', example: 'Japon' })
+  name!: string;
+
   @ApiProperty({
     description: 'Slug du tag',
     example: 'japon',
