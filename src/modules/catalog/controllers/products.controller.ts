@@ -137,21 +137,39 @@ export class ProductsController {
   ): Promise<ProductResponseDto> {
     return this.productsService.update(id, dto, req.user);
   }
+  
+  // ========================================
+  // ARCHIVE — PATCH /products/:id/archive
+  // ========================================
+  @Patch(':id/archive')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Archiver un produit (soft delete)' })
+  @ApiParam({ name: 'id', description: 'UUID du produit' })
+  @ApiResponse({ status: 200, description: 'Produit archivé', type: ProductResponseDto })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  @ApiResponse({ status: 403, description: 'Accès refusé' })
+  @ApiResponse({ status: 404, description: 'Produit non trouvé' })
+  async archive(@Param('id', ParseUUIDPipe) id: string, @Request() req: RequestWithUser): Promise<ProductResponseDto> {
+    return this.productsService.archive(id, req.user);
+  }
 
   // ========================================
-  // DELETE
+  // DELETE (définitif — produit archivé uniquement)
   // ========================================
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPER_ADMIN', 'ADMIN')
   @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Supprimer un produit' })
+  @ApiOperation({ summary: 'Supprimer définitivement un produit (doit être archivé)' })
   @ApiParam({ name: 'id', description: 'UUID du produit' })
-  @ApiResponse({ status: 204, description: 'Produit supprimé' })
+  @ApiResponse({ status: 204, description: 'Produit supprimé définitivement' })
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 403, description: 'Accès refusé' })
   @ApiResponse({ status: 404, description: 'Produit non trouvé' })
+  @ApiResponse({ status: 409, description: 'Le produit doit être archivé avant suppression' })
   async remove(@Param('id', ParseUUIDPipe) id: string, @Request() req: RequestWithUser): Promise<void> {
     await this.productsService.remove(id, req.user);
   }

@@ -135,6 +135,28 @@ export class ProductVariantsController {
   }
 
   // ========================================
+  // ARCHIVE — PATCH /products/:productId/variants/:id/archive
+  // ========================================
+  @Patch(':id/archive')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Archiver une variante (soft delete)' })
+  @ApiParam({ name: 'productId', description: 'UUID du produit' })
+  @ApiParam({ name: 'id', description: 'UUID de la variante' })
+  @ApiResponse({ status: 200, description: 'Variante discontinuée', type: ProductVariantResponseDto })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  @ApiResponse({ status: 403, description: 'Accès refusé' })
+  @ApiResponse({ status: 404, description: 'Variante non trouvée' })
+  async archive(
+    @Param('productId', ParseUUIDPipe) _productId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Request() req: RequestWithUser,
+  ): Promise<ProductVariantResponseDto> {
+    return this.variantsService.archive(id, req.user);
+  }
+
+  // ========================================
   // DELETE — DELETE /products/:productId/variants/:id
   // ========================================
   @Delete(':id')
@@ -149,6 +171,7 @@ export class ProductVariantsController {
   @ApiResponse({ status: 401, description: 'Non authentifié' })
   @ApiResponse({ status: 403, description: 'Accès refusé' })
   @ApiResponse({ status: 404, description: 'Variante non trouvée' })
+  @ApiResponse({ status: 409, description: 'La variante doit être discontinuée avant suppression' })
   async remove(
     @Param('productId', ParseUUIDPipe) _productId: string,
     @Param('id', ParseUUIDPipe) id: string,

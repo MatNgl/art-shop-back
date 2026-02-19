@@ -18,7 +18,7 @@ import { ProductVariantImage } from './product-variant-image.entity';
 export enum ProductVariantStatus {
   AVAILABLE = 'AVAILABLE',
   OUT_OF_STOCK = 'OUT_OF_STOCK',
-  DISCONTINUED = 'DISCONTINUED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 @Entity('product_variants')

@@ -256,17 +256,61 @@ export class ProductsService {
     return updatedProduct;
   }
 
-  // DELETE
+  // ========================================
+  // ARCHIVE (soft delete)
+  // ========================================
+  async archive(id: string, currentUser: User): Promise<Product> {
+    const product = await this.findById(id);
+
+    if (product.status === ProductStatus.ARCHIVED) {
+      return product;
+    }
+
+    const oldStatus = product.status;
+    product.status = ProductStatus.ARCHIVED;
+    product.featured = false; // Un produit archivé ne doit plus être mis en avant
+    product.modifiedBy = currentUser.id;
+
+    const archived = await this.productRepository.save(product);
+
+    await this.activityLogService.log({
+      actorType: this.getActorType(currentUser),
+      actorUserId: currentUser.id,
+      actionType: ActionType.PRODUCT_ARCHIVED,
+      entityType: EntityType.PRODUCT,
+      entityId: archived.id,
+      severity: LogSeverity.WARNING,
+      metadata: {
+        productName: archived.name,
+        productSlug: archived.slug,
+        previousStatus: oldStatus,
+      },
+    });
+
+    return archived;
+  }
+
+  // ========================================
+  // DELETE (suppression définitive — produit ARCHIVED uniquement)
+  // ========================================
   async remove(id: string, currentUser: User): Promise<void> {
     const product = await this.findById(id);
 
+    if (product.status !== ProductStatus.ARCHIVED) {
+      throw new ConflictException(
+        `Seuls les produits archivés peuvent être supprimés définitivement. ` +
+          `Statut actuel : ${product.status}. Archivez d'abord le produit.`,
+      );
+    }
+
+    // Log AVANT suppression
     await this.activityLogService.log({
       actorType: this.getActorType(currentUser),
       actorUserId: currentUser.id,
       actionType: ActionType.PRODUCT_DELETED,
       entityType: EntityType.PRODUCT,
       entityId: product.id,
-      severity: LogSeverity.WARNING,
+      severity: LogSeverity.CRITICAL,
       metadata: {
         deletedProductName: product.name,
         deletedProductSlug: product.slug,
@@ -277,7 +321,6 @@ export class ProductsService {
 
     await this.productRepository.remove(product);
   }
-
   // ========================================
   // HELPERS
   // ========================================

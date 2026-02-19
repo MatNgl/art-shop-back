@@ -290,10 +290,55 @@ export class ProductVariantsService {
   }
 
   // ========================================
-  // DELETE
+  // ARCHIVED (soft delete)
+  // ========================================
+  async archive(id: string, currentUser: User): Promise<ProductVariant> {
+    const variant = await this.findById(id);
+
+    if (variant.status === ProductVariantStatus.ARCHIVED) {
+      return variant;
+    }
+
+    const oldStatus = variant.status;
+    variant.status = ProductVariantStatus.ARCHIVED;
+    variant.modifiedBy = currentUser.id;
+
+    await this.variantRepository.save(variant);
+
+    const updated = await this.findById(id);
+
+    await this.activityLogService.log({
+      actorType: this.getActorType(currentUser),
+      actorUserId: currentUser.id,
+      actionType: ActionType.PRODUCT_VARIANT_ARCHIVED,
+      entityType: EntityType.PRODUCT_VARIANT,
+      entityId: updated.id,
+      severity: LogSeverity.WARNING,
+      metadata: {
+        productId: updated.productId,
+        formatName: updated.format.name,
+        materialName: updated.material.name,
+        previousStatus: oldStatus,
+        price: updated.price,
+        stockQty: updated.stockQty,
+      },
+    });
+
+    return updated;
+  }
+
+  // ========================================
+  // DELETE (définitif — variante ARCHIVED uniquement)
   // ========================================
   async remove(id: string, currentUser: User): Promise<void> {
     const variant = await this.findById(id);
+
+    if (variant.status !== ProductVariantStatus.ARCHIVED) {
+      throw new ConflictException(
+        `Seules les variantes archivées peuvent être supprimées définitivement. ` +
+          `Statut actuel : ${variant.status}. Archivez d'abord la variante.`,
+      );
+    }
 
     // Log AVANT suppression
     await this.activityLogService.log({
@@ -302,7 +347,7 @@ export class ProductVariantsService {
       actionType: ActionType.PRODUCT_VARIANT_DELETED,
       entityType: EntityType.PRODUCT_VARIANT,
       entityId: variant.id,
-      severity: LogSeverity.WARNING,
+      severity: LogSeverity.CRITICAL,
       metadata: {
         productId: variant.productId,
         formatId: variant.formatId,
@@ -316,7 +361,6 @@ export class ProductVariantsService {
 
     await this.variantRepository.remove(variant);
   }
-
   // ========================================
   // HELPERS
   // ========================================
